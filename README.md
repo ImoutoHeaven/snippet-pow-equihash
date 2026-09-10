@@ -5,7 +5,7 @@ with a Rust/WASM Worker and submit a compact proof. Route rules select
 Equihash, Turnstile, combined checks, atomic consumption, or bypass.
 
 - [Configuration](docs/configuration.md): rules, bindings, credentials, and authorization modes.
-- [Calibration](docs/calibration.md): workload measurements and benchmark reproduction.
+- [Calibration](docs/calibration.md): workload selection and benchmark reproduction.
 
 ## Build
 
@@ -21,16 +21,6 @@ The build writes three minified Snippets to `dist/` and fails when any file
 exceeds **32,768 bytes**. Configure the deployment's rules and secrets before
 building its artifacts.
 
-| Configuration | `pow_config_snippet.js` | `pow_core1_snippet.js` | `pow_core2_snippet.js` |
-| --- | ---: | ---: | ---: |
-| Empty rule list | 26,016 B | 23,670 B | 23,901 B |
-| Release-check rules | 27,320 B | 23,670 B | 23,901 B |
-
-The [release-check rules](scripts/release-check.mjs) include resource bypasses,
-combined verification, atomic consumption, provider authentication, path
-binding, and a method condition. Build output gives the exact size for each
-deployment configuration.
-
 ## Solver and release checks
 
 `npm run build:solver` builds `equihash-solver/` with Rust `1.96.0`, the
@@ -39,8 +29,8 @@ artifact to `esm/solver.wasm` and a hash-named copy to `equihash-solver/dist/`.
 
 `npm run check:release` checks a checkout with the empty `CONFIG` rule list.
 It rebuilds WASM, requires byte equality with the checked-in artifact, builds
-both configurations above, restores the empty-rule build, and runs the full
-test suite. Required solver fixtures must return a valid proof. CI runs this
+empty and representative rule configurations, restores the empty-rule build,
+and runs the full test suite. Required solver fixtures must return a valid proof. CI runs this
 entry point with the locked Rust and Node versions.
 
 ## Deploy
@@ -66,4 +56,4 @@ together when using versioned resource paths.
 Browser resources must be reachable under the configured route policy. The
 configuration example places explicit resource rules before its protected
 catch-all. Device costs and Cloudflare runtime qualification are described
-with their measurement scope in the calibration report.
+with their measurement scope in the calibration guide.

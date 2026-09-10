@@ -70,8 +70,8 @@ checks; replayed consumed tokens follow the stale-response flow.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `POW_EQ_N` | `96` | Even integer from 8 through 256. |
-| `POW_EQ_K` | `5` | Integer from 2 through 8; `n` must be divisible by `k + 1`. |
+| `POW_EQ_N` | `144` | Even integer from 8 through 256. |
+| `POW_EQ_K` | `7` | Integer from 2 through 8; `n` must be divisible by `k + 1`. |
 | `POW_TICKET_TTL_SEC` | `600` | Challenge lifetime in seconds. |
 | `PROOF_TTL_SEC` | `600` | Proof authorization lifetime in seconds, capped by remaining challenge validity on issuance. |
 | `PROOF_RENEW_ENABLE` | `false` | Renew eligible proof cookies on navigation. |
@@ -80,10 +80,13 @@ checks; replayed consumed tokens follow the stale-response flow.
 | `PROOF_RENEW_MIN_SEC` | `30` | Minimum interval between renewals. |
 
 The parameter domain is shared by configuration, Worker, Rust, and verifier.
-A proof contains `2^k` distinct 32-bit indices: `4 * 2^k` bytes, or 128 bytes
+A proof contains `2^k` distinct 32-bit indices: `4 * 2^k` bytes, or 512 bytes
 at the default. The nonce is 24 bytes. Resource availability determines
 whether a device can solve its issued parameters within the ticket lifetime.
-See [calibration](calibration.md) for measured default costs.
+The Worker selects `max(2^k, 2^(n/(k+1)+1))` initial rows: 524,288 at the
+default. Browser and device capacity determine available memory; allocation
+failures return a resource error. Row counts must fit the solver's unsigned
+32-bit ABI. See [calibration](calibration.md) for workload measurement.
 
 Combined verification obtains Turnstile before token-bound hashing. The
 browser accounts for token acquisition, resource loading, and initialization

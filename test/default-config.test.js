@@ -14,8 +14,8 @@ test("normalizeConfig exposes the preserved gate, binding, renewal, and transpor
   assert.equal(config.turncheck, false);
   assert.equal(config.POW_VERSION, 5);
   assert.equal(config.POW_API_PREFIX, "/__pow");
-  assert.equal(config.POW_EQ_N, 96);
-  assert.equal(config.POW_EQ_K, 5);
+  assert.equal(config.POW_EQ_N, 144);
+  assert.equal(config.POW_EQ_K, 7);
   assert.equal(config.POW_ESM_URL, CDN_ESM_URL);
   assert.equal(config.POW_GLUE_URL, CDN_GLUE_URL);
   assert.equal(config.POW_TICKET_TTL_SEC, 600);

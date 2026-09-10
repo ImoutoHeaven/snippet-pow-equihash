@@ -1,7 +1,6 @@
 const NONCE_SIZE = 24;
 const SEED_SIZE = 32;
 const U32_MAX = 0xffffffff;
-const DEFAULT_MEMORY_BUDGET = 64 * 1024 * 1024;
 
 const toBytes = (value) => {
   if (value instanceof Uint8Array) return value;
@@ -29,16 +28,7 @@ const isValidParams = (normalizedN, normalizedK) => {
   return normalizedN % (normalizedK + 1) === 0;
 };
 
-const defaultRowsFor = (n, k) => {
-  const densityExponent = n / (k + 1) + 1;
-  const density = densityExponent < 53 ? 2 ** densityExponent : Infinity;
-  const rowBytes = Math.ceil(n / 8) + 256;
-  const budgetRows = Math.max(1, Math.floor(DEFAULT_MEMORY_BUDGET / rowBytes));
-  const proofRows = 2 ** k;
-  return Number.isFinite(density)
-    ? Math.max(proofRows, Math.min(density, budgetRows))
-    : Math.max(proofRows, budgetRows);
-};
+const defaultRowsFor = (n, k) => Math.max(2 ** k, 2 ** (n / (k + 1) + 1));
 
 const normalizeNonceSequence = (value) => {
   if (value === undefined) return [];
@@ -49,8 +39,8 @@ const normalizeNonceSequence = (value) => {
 };
 
 const normalizeParams = (n, k) => {
-  const normalizedN = n === undefined ? 96 : n;
-  const normalizedK = k === undefined ? 5 : k;
+  const normalizedN = n === undefined ? 144 : n;
+  const normalizedK = k === undefined ? 7 : k;
   if (!isValidParams(normalizedN, normalizedK)) throw new Error("invalid equihash params");
   return { n: normalizedN, k: normalizedK };
 };

@@ -228,18 +228,18 @@ test("shipped WASM ABI solves the fixed regressions and reports resource failure
   assert.equal(resource.rc, -2);
 });
 
-test("real shipped Worker solves and the independent verifier accepts n=90,k=5", { timeout: 120_000 }, async () => {
+test("real shipped Worker defaults to 144/7 and produces a valid proof", { timeout: 120_000 }, async () => {
   const bytes = new Uint8Array(await readFile(wasmPath));
   assert.ok(bytes.length > 0);
   const worker = spawnWorker();
   const call = rpc(worker);
   try {
-    await call("INIT", { n: 90, k: 5, solvePolicy: { deadlineMs: 60_000, rows: 65536 }, solverWasmBytes: bytes }, [bytes.buffer]);
+    await call("INIT", { solvePolicy: { deadlineMs: 60_000 }, solverWasmBytes: bytes }, [bytes.buffer]);
     const seed = Uint8Array.from({ length: 32 }, (_, index) => 31 - index);
     const result = await call("SOLVE", { seed });
     assert.equal(result.status, "solved");
     const decode = (value) => Uint8Array.from(Buffer.from(value.replace(/-/g, "+").replace(/_/g, "/"), "base64"));
-    assert.equal(verifyEquihash({ seed, nonce: decode(result.nonceB64), proof: decode(result.proofB64), n: 90, k: 5 }), true);
+    assert.equal(verifyEquihash({ seed, nonce: decode(result.nonceB64), proof: decode(result.proofB64), n: 144, k: 7 }), true);
     await call("DISPOSE");
   } finally {
     await worker.terminate();
@@ -249,6 +249,9 @@ test("real shipped Worker solves and the independent verifier accepts n=90,k=5",
 test("Worker default rows preserve the minimum proof population and full default population", () => {
   assert.ok(defaultRowsFor(18, 8) >= 256);
   assert.equal(defaultRowsFor(96, 5), 131072);
+  assert.equal(defaultRowsFor(136, 7), 262144);
+  assert.equal(defaultRowsFor(144, 7), 524288);
+  assert.equal(defaultRowsFor(144, 8), 131072);
 });
 
 test("real shipped Worker accepts a fixed nonce sequence for reproducible calibration", { timeout: 30_000 }, async () => {
@@ -311,7 +314,10 @@ test("Worker reports lifecycle, parameter, and resource failures explicitly", { 
   const call = rpc(worker);
   try {
     assert.equal((await call("SOLVE", { seed: new Uint8Array(32) })).status, "fatal");
-    await call("INIT", { n: 252, k: 2, solverWasmBytes: bytes }, [bytes.buffer]);
+    await assert.rejects(
+      call("INIT", { n: 252, k: 2, solverWasmBytes: bytes }, [bytes.buffer]),
+      /invalid rows/u,
+    );
     await call("DISPOSE");
     const zeroBytes = new Uint8Array(await readFile(wasmPath));
     await call("INIT", { n: 12, k: 2, solvePolicy: { rows: 64, deadlineMs: 0 }, solverWasmBytes: zeroBytes }, [zeroBytes.buffer]);

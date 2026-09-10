@@ -49,8 +49,6 @@ const makeRepresentativeConfig = (source) => {
       POW_TOKEN: "release-secret",
       powcheck: true,
       turncheck: true,
-      POW_EQ_N: 96,
-      POW_EQ_K: 5,
       POW_GLUE_URL: "/glue.js",
       POW_ESM_URL: "/esm/esm.js",
       POW_BIND_PATH: true,

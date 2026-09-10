@@ -8,13 +8,15 @@ import os from "node:os";
 import { deriveEquihashSeed } from "../lib/equihash/seed.js";
 import { encodeV5Ticket, makeTicketMac } from "../lib/equihash/ticket.js";
 import { base64UrlEncodeNoPad } from "../lib/equihash/encoding.js";
+import { defaultRowsFor as workerRowsFor } from "../esm/equihash-worker.js";
+import { EQ_DEFAULT_N, EQ_DEFAULT_K } from "../lib/equihash/params.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SECRET = "calibration-secret";
 const HOST = "127.0.0.1";
 const DEFAULT_SAMPLES = 1;
 const DEFAULT_TIMEOUT_MS = 180_000;
-const PUBLISHED_DEFAULT = { n: 96, k: 5 };
+const PUBLISHED_DEFAULT = { n: EQ_DEFAULT_N, k: EQ_DEFAULT_K };
 const FIXED_NOW = 4_000_000_000;
 
 // Fixed routes, tickets, seeds, and nonce sequences make each input case repeatable.
@@ -46,9 +48,8 @@ const DETERMINISTIC_CASE = {
 };
 
 const DEFAULT_CASES = Array.from({ length: 16 }, (_, index) => ({
-  id: `eq-96-5-batch-${16 + index}`,
-  n: 96,
-  k: 5,
+  id: `eq-${PUBLISHED_DEFAULT.n}-${PUBLISHED_DEFAULT.k}-batch-${16 + index}`,
+  ...PUBLISHED_DEFAULT,
   cfgId: 16 + index,
   nonceAttempts: [0, 1],
   required: true,
@@ -129,12 +130,6 @@ const nonceForAttempt = (attempt) => {
   const nonce = new Uint8Array(24);
   new DataView(nonce.buffer).setUint32(20, attempt, false);
   return nonce;
-};
-
-const workerRowsFor = (n, k) => {
-  const density = 2 ** (n / (k + 1) + 1);
-  const budgetRows = Math.max(1, Math.floor((64 * 1024 * 1024) / (Math.ceil(n / 8) + 256)));
-  return Math.max(2 ** k, Math.min(density, budgetRows));
 };
 
 const solveWithFixedNonces = async (wasmBytes, { ticket, seed, rows }) => {
@@ -568,7 +563,7 @@ const measureResourceProbe = async (wasmBytes, n, k) => {
     wasmLinearMemoryBytes: peakWasmLinearMemoryBytes,
     peakServerRssBytes: process.memoryUsage().rss,
     finding: results.some((entry) => entry.result === -2)
-      ? "Rust MAX_WORKING_BYTES rejected this population"
+      ? "Solver allocation or capacity check failed"
       : results.some((entry) => entry.result === proofLength)
         ? "Fixed nonce probes produced valid proofs"
         : "No proof in eight fixed nonces; candidate effectiveness needs broader sampling",

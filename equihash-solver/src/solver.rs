@@ -1,16 +1,10 @@
 use std::alloc::{alloc as alloc_raw, dealloc as dealloc_raw, Layout};
 use std::cmp::Ordering;
-use std::mem::size_of;
 
 const ERR_INVALID_INPUT: i32 = -1;
 const ERR_RESOURCE: i32 = -2;
-// ponytail: fixed per-call memory ceiling; raise it only with a measured browser budget.
-const MAX_WORKING_BYTES: usize = 256 * 1024 * 1024;
 const SEED_BYTES: u32 = 32;
 const NONCE_BYTES: u32 = 24;
-// Conservative allocator metadata/transient-hash allowance for aggregate live-table accounting.
-const ALLOCATION_OVERHEAD: usize = 128;
-const TRANSIENT_HASH_BYTES: usize = 4096;
 
 #[derive(Clone)]
 struct BitField {
@@ -130,69 +124,6 @@ fn hash_index_bits(
     BitField::from_prefix(digest.as_bytes(), n as usize)
 }
 
-fn vec_heap_bytes(capacity: usize, element_size: usize) -> Option<usize> {
-    capacity
-        .checked_mul(element_size)?
-        .checked_add(ALLOCATION_OVERHEAD)
-}
-
-fn entry_heap_bytes(bits_capacity: usize, indices_capacity: usize) -> Option<usize> {
-    vec_heap_bytes(bits_capacity, 1)?
-        .checked_add(vec_heap_bytes(indices_capacity, size_of::<u32>())?)?
-        .checked_add(ALLOCATION_OVERHEAD)
-}
-
-fn collection_heap_bytes(entries: &[Entry], capacity: usize) -> Option<usize> {
-    let mut total = vec_heap_bytes(capacity, size_of::<Entry>())?;
-    for entry in entries {
-        total = total.checked_add(entry_heap_bytes(
-            entry.bits.bytes.capacity(),
-            entry.indices.capacity(),
-        )?)?;
-    }
-    total.checked_add(TRANSIENT_HASH_BYTES)
-}
-
-fn initial_heap_bytes(n: u32, rows: usize) -> Option<usize> {
-    let bits_capacity = (n as usize).checked_add(7)?.checked_div(8)?;
-    vec_heap_bytes(rows, size_of::<Entry>())?
-        .checked_add(rows.checked_mul(entry_heap_bytes(bits_capacity, 1)?)?)?
-        .checked_add(TRANSIENT_HASH_BYTES)
-}
-
-fn ensure_live_budget(
-    layer_bytes: usize,
-    next_capacity: usize,
-    next_entry_bytes: usize,
-    prospective_entry_bytes: usize,
-) -> Result<(), ()> {
-    let next_bytes = vec_heap_bytes(next_capacity, size_of::<Entry>())
-        .ok_or(())?
-        .checked_add(next_entry_bytes)
-        .ok_or(())?
-        .checked_add(TRANSIENT_HASH_BYTES)
-        .ok_or(())?
-        .checked_add(prospective_entry_bytes)
-        .ok_or(())?;
-    if layer_bytes.checked_add(next_bytes).ok_or(())? > MAX_WORKING_BYTES {
-        return Err(());
-    }
-    Ok(())
-}
-
-fn ensure_output_budget(layer: &Vec<Entry>, output_bytes: usize) -> Result<(), ()> {
-    let current = collection_heap_bytes(layer, layer.capacity()).ok_or(())?;
-    if current
-        .checked_add(output_bytes)
-        .and_then(|value| value.checked_add(ALLOCATION_OVERHEAD))
-        .ok_or(())?
-        > MAX_WORKING_BYTES
-    {
-        return Err(());
-    }
-    Ok(())
-}
-
 fn entries_disjoint(left: &[u32], right: &[u32]) -> bool {
     left.iter().all(|value| !right.contains(value))
 }
@@ -200,9 +131,6 @@ fn entries_disjoint(left: &[u32], right: &[u32]) -> bool {
 fn solve_one(seed: &[u8], nonce: &[u8], n: u32, k: u32, rows: u32) -> Result<Option<Vec<u8>>, i32> {
     let collision_bits = (n / (k + 1)) as usize;
     let personalization = make_personalization(n, k);
-    if initial_heap_bytes(n, rows as usize).ok_or(ERR_RESOURCE)? > MAX_WORKING_BYTES {
-        return Err(ERR_RESOURCE);
-    }
 
     let mut layer = Vec::new();
     layer
@@ -232,9 +160,7 @@ fn solve_one(seed: &[u8], nonce: &[u8], n: u32, k: u32, rows: u32) -> Result<Opt
                 .then_with(|| left.first.cmp(&right.first))
         });
 
-        let layer_bytes = collection_heap_bytes(&layer, layer.capacity()).ok_or(ERR_RESOURCE)?;
         let mut next = Vec::new();
-        let mut next_entry_bytes = 0usize;
         let mut group_start = 0usize;
         while group_start < layer.len() {
             let mut group_end = group_start + 1;
@@ -261,36 +187,11 @@ fn solve_one(seed: &[u8], nonce: &[u8], n: u32, k: u32, rows: u32) -> Result<Opt
                         .len()
                         .checked_add(right.indices.len())
                         .ok_or(ERR_RESOURCE)?;
-                    let bits_capacity = rem_bits.checked_add(7).ok_or(ERR_RESOURCE)? / 8;
-                    let prospective_entry_bytes =
-                        entry_heap_bytes(bits_capacity, index_len).ok_or(ERR_RESOURCE)?;
-                    let next_capacity = if next.len() == next.capacity() {
-                        next.capacity()
-                            .checked_mul(4)
-                            .and_then(|value| value.checked_add(1))
-                            .ok_or(ERR_RESOURCE)?
-                    } else {
-                        next.capacity()
-                    };
-                    ensure_live_budget(
-                        layer_bytes,
-                        next_capacity,
-                        next_entry_bytes,
-                        prospective_entry_bytes,
-                    )
-                    .map_err(|_| ERR_RESOURCE)?;
                     if next.len() == next.capacity() {
                         if next.try_reserve(1).is_err() {
                             return Err(ERR_RESOURCE);
                         }
                     }
-                    ensure_live_budget(
-                        layer_bytes,
-                        next.capacity(),
-                        next_entry_bytes,
-                        prospective_entry_bytes,
-                    )
-                    .map_err(|_| ERR_RESOURCE)?;
                     let bits =
                         BitField::xor_tail(&left.bits, &right.bits, collision_bits, rem_bits)
                             .map_err(|_| ERR_RESOURCE)?;
@@ -300,14 +201,6 @@ fn solve_one(seed: &[u8], nonce: &[u8], n: u32, k: u32, rows: u32) -> Result<Opt
                         .map_err(|_| ERR_RESOURCE)?;
                     indices.extend_from_slice(&left.indices);
                     indices.extend_from_slice(&right.indices);
-                    next_entry_bytes = next_entry_bytes
-                        .checked_add(
-                            entry_heap_bytes(bits.bytes.capacity(), indices.capacity())
-                                .ok_or(ERR_RESOURCE)?,
-                        )
-                        .ok_or(ERR_RESOURCE)?;
-                    ensure_live_budget(layer_bytes, next.capacity(), next_entry_bytes, 0)
-                        .map_err(|_| ERR_RESOURCE)?;
                     next.push(Entry {
                         bits,
                         first: left.first,
@@ -326,8 +219,6 @@ fn solve_one(seed: &[u8], nonce: &[u8], n: u32, k: u32, rows: u32) -> Result<Opt
     }
 
     let expected_count = 1usize << k;
-    ensure_output_budget(&layer, expected_count.checked_mul(4).ok_or(ERR_RESOURCE)?)
-        .map_err(|_| ERR_RESOURCE)?;
     for entry in layer {
         if entry.bits.is_zero() && entry.indices.len() == expected_count {
             let out_len = entry.indices.len().checked_mul(4).ok_or(ERR_RESOURCE)?;
