@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import { readFile, stat, writeFile } from "node:fs/promises";
-import { runBuild, distDir } from "../lib/build-lock.js";
+import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { runBuild, distDir, repoRoot } from "../lib/build-lock.js";
 
 const HARD_LIMIT = 32 * 1024;
 const splitSnippets = [
@@ -48,5 +49,24 @@ test("build emits pow-config and split core snippets", async () => {
   for (const { file, token, source } of snippetSources) {
     assert.ok(!source.includes("__COMPILED_CONFIG__"), `${file} still contains config placeholder`);
     assert.ok(!source.includes(token), `${file} still contains inline placeholder ${token}`);
+  }
+
+  const probeDir = await mkdtemp(join(tmpdir(), "pow-build-crypto-"));
+  const previousConfigSource = process.env.POW_CONFIG_SOURCE;
+  try {
+    const probe = join(probeDir, "config.js");
+    const cryptoModule = join(repoRoot, "lib/equihash/blake2b.js").replaceAll("\\", "/");
+    await writeFile(probe, `const CONFIG = [];\nexport { blake2b } from ${JSON.stringify(cryptoModule)};\n`);
+    process.env.POW_CONFIG_SOURCE = probe;
+    await runBuild();
+    const built = await readFile(powConfigSnippet, "utf8");
+    const { blake2b } = await import(`data:text/javascript;base64,${Buffer.from(built).toString("base64")}`);
+    assert.equal(Buffer.from(blake2b("abc")).toString("hex"),
+      "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923");
+  } finally {
+    if (previousConfigSource === undefined) delete process.env.POW_CONFIG_SOURCE;
+    else process.env.POW_CONFIG_SOURCE = previousConfigSource;
+    await rm(probeDir, { recursive: true, force: true });
+    await runBuild();
   }
 });

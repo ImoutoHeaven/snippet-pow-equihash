@@ -95,7 +95,7 @@ const minifyAndCheck = async ({ path }) => {
       unsafe_arrows: true,
       unsafe_comps: true,
       unsafe_Function: true,
-      unsafe_math: true,
+      unsafe_math: false, // Preserve Number(BigInt); unary + throws in BLAKE2b.
       unsafe_methods: true,
       unsafe_proto: true,
       unsafe_regexp: true,
