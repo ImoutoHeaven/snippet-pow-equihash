@@ -2,6 +2,14 @@
 
 import { evaluateWhen, matchIpMatcher, matchTextMatcher } from "./lib/rule-engine/runtime.js";
 import { validatePathGlobPattern } from "./lib/rule-engine/path-glob.js";
+import { EQ_DEFAULT_K, EQ_DEFAULT_N, normalizeEquihashParams } from "./lib/equihash/params.js";
+import { parseV5Ticket } from "./lib/equihash/ticket.js";
+import {
+  base64UrlEncodeNoPad,
+  hmacSha256Base64UrlNoPad,
+  isPlaceholderConfigSecret,
+  timingSafeEqual,
+} from "./lib/pow/auth-primitives.js";
 
 const CONFIG = [];
 
@@ -12,20 +20,10 @@ const DEFAULTS = {
   bindPathQueryName: "path",
   bindPathHeaderName: "",
   stripBindPathHeader: false,
-  POW_VERSION: 4,
+  POW_VERSION: 5,
   POW_API_PREFIX: "/__pow",
-  POW_DIFFICULTY_BASE: 8192,
-  POW_DIFFICULTY_COEFF: 1.0,
-  POW_MIN_STEPS: 512,
-  POW_MAX_STEPS: 8192,
-  POW_HASHCASH_X: 1,
-  POW_PAGE_BYTES: 16384,
-  POW_MIX_ROUNDS: 2,
-  POW_SEGMENT_LEN: 2,
-  POW_SAMPLE_RATE: 0.01,
-  POW_OPEN_BATCH: 4,
-  POW_COMMIT_TTL_SEC: 120,
-  POW_MAX_GEN_TIME_SEC: 300,
+  POW_EQ_N: EQ_DEFAULT_N,
+  POW_EQ_K: EQ_DEFAULT_K,
   POW_TICKET_TTL_SEC: 600,
   PROOF_TTL_SEC: 600,
   PROOF_RENEW_ENABLE: false,
@@ -56,10 +54,8 @@ const DEFAULTS = {
   POW_BIND_TLS: true,
   IPV4_PREFIX: 32,
   IPV6_PREFIX: 128,
-  POW_ESM_URL:
-    "https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-posw@6a34eb1/esm/esm.js",
-  POW_GLUE_URL:
-    "https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-posw@6a34eb1/glue.js",
+  POW_GLUE_URL: "/glue.js",
+  POW_ESM_URL: "/esm/esm.js",
   SITEVERIFY_URLS: [],
   SITEVERIFY_AUTH_KID: "v1",
   SITEVERIFY_AUTH_SECRET: "",
@@ -102,71 +98,10 @@ const INNER_COUNT_HEADER = "X-Pow-Inner-Count";
 const INNER_HEADER_PREFIX = "X-Pow-Inner-";
 const INNER_CHUNK_SIZE = 1800;
 const CONFIG_SECRET = "replace-me";
-const isPlaceholderConfigSecret = (value) =>
-  typeof value !== "string" || !value.trim() || value === "replace-me";
 
 const encoder = new TextEncoder();
-const decoder = new TextDecoder();
-const hmacKeyCache = new Map();
-
-const base64UrlEncode = (bytes) => {
-  const chunkSize = 0x8000;
-  let binary = "";
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_");
-};
-
-const base64UrlEncodeNoPad = (bytes) => base64UrlEncode(bytes).replace(/=+$/g, "");
-
-const base64UrlDecodeToBytes = (b64u) => {
-  if (!b64u || typeof b64u !== "string") return null;
-  let b64 = b64u.replace(/-/g, "+").replace(/_/g, "/");
-  while (b64.length % 4) b64 += "=";
-  try {
-    const bin = atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return bytes;
-  } catch {
-    return null;
-  }
-};
 
 const utf8ToBytes = (value) => encoder.encode(String(value ?? ""));
-
-const getHmacKey = (secret) => {
-  const key = typeof secret === "string" ? secret : "";
-  if (!key) {
-    return Promise.reject(new Error("HMAC secret missing"));
-  }
-  if (!hmacKeyCache.has(key)) {
-    hmacKeyCache.set(
-      key,
-      crypto.subtle.importKey(
-        "raw",
-        encoder.encode(key),
-        { name: "HMAC", hash: "SHA-256" },
-        false,
-        ["sign"]
-      )
-    );
-  }
-  return hmacKeyCache.get(key);
-};
-
-const hmacSha256 = async (secret, data) => {
-  const key = await getHmacKey(secret);
-  const payload = encoder.encode(data);
-  const buf = await crypto.subtle.sign("HMAC", key, payload);
-  return new Uint8Array(buf);
-};
-
-const hmacSha256Base64UrlNoPad = async (secret, data) => {
-  const bytes = await hmacSha256(secret, data);
-  return base64UrlEncodeNoPad(bytes);
-};
 
 const sha256Bytes = async (data) => {
   const bytes = typeof data === "string" ? encoder.encode(data) : data;
@@ -175,7 +110,6 @@ const sha256Bytes = async (data) => {
 };
 
 const BASE64URL_RE = /^[A-Za-z0-9_-]+$/;
-const B64_HASH_MAX_LEN = 64;
 const B64_TICKET_MAX_LEN = 256;
 const BIND_PATH_INPUT_MAX_LEN = 2048;
 const ATOMIC_CAPTCHA_MAX_LEN = 8192;
@@ -183,11 +117,17 @@ const ATOMIC_TICKET_MAX_LEN = 2048;
 const ATOMIC_CONSUME_MAX_LEN = 256;
 const ATOMIC_COOKIE_NAME_MAX_LEN = 128;
 const ATOMIC_SNAPSHOT_MAX_LEN = 12288;
-const NONCE_MIN_LEN = 16;
-const NONCE_MAX_LEN = 64;
-const CAPTCHA_TAG_LEN = 16;
 const TURN_TOKEN_MIN_LEN = 20;
 const TURN_TOKEN_MAX_LEN = 4096;
+const MAX_PROOF_BYTES = 4 * 2 ** 8;
+const MAX_NONCE_B64_LEN = 4 * Math.ceil(24 / 3);
+const MAX_PROOF_B64_LEN = 4 * Math.ceil(MAX_PROOF_BYTES / 3);
+// Eightfold slack covers nested JSON escaping and UTF-8 expansion of a legal token.
+const MAX_CAPTCHA_ENVELOPE_BYTES = 8 * (TURN_TOKEN_MAX_LEN + 32);
+const VERIFY_BODY_MAX_BYTES = Math.max(
+  65536,
+  B64_TICKET_MAX_LEN + BIND_PATH_INPUT_MAX_LEN + MAX_NONCE_B64_LEN + MAX_PROOF_B64_LEN + MAX_CAPTCHA_ENVELOPE_BYTES + 512,
+);
 
 const isBase64Url = (value, minLen, maxLen) => {
   if (typeof value !== "string") return false;
@@ -207,17 +147,20 @@ const normalizeNumberClamp = (value, fallback, min, max) => {
   return Math.min(max, Math.max(min, num));
 };
 
-const normalizeSampleRate = (value, fallback = 0.01) => {
-  const num = Number(value);
-  if (!Number.isFinite(num) || num <= 0) return fallback;
-  return Math.min(1, num);
-};
-
 const normalizeBoolean = (value, fallback) =>
   value === true ? true : value === false ? false : fallback;
 
 const normalizeString = (value, fallback) =>
   typeof value === "string" ? value : fallback;
+
+const normalizeApiPrefix = (value) => {
+  if (typeof value !== "string") return DEFAULTS.POW_API_PREFIX;
+  const trimmed = value.trim();
+  if (!trimmed) return DEFAULTS.POW_API_PREFIX;
+  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  const normalized = withSlash.replace(/\/+$/u, "");
+  return normalized || DEFAULTS.POW_API_PREFIX;
+};
 
 const normalizeStringArray = (value, fallback) => {
   if (!Array.isArray(value)) {
@@ -236,39 +179,6 @@ const normalizeStringArray = (value, fallback) => {
   return normalized;
 };
 
-const clampIntRange = (value, min, max) =>
-  Math.min(max, Math.max(min, Math.floor(value)));
-
-const normalizeSegmentLen = (value, fallback) => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return clampIntRange(value, 2, 16);
-  }
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    if (/^\d+$/.test(trimmed)) {
-      return clampIntRange(Number(trimmed), 2, 16);
-    }
-    const match = trimmed.match(/^(\d+)\s*-\s*(\d+)$/);
-    if (match) {
-      let min = clampIntRange(Number(match[1]), 2, 16);
-      let max = clampIntRange(Number(match[2]), 2, 16);
-      if (min > max) {
-        [min, max] = [max, min];
-      }
-      return `${min}-${max}`;
-    }
-  }
-  return fallback;
-};
-
-const normalizePageBytes = (value, fallback) => {
-  const num = Number(value);
-  if (!Number.isFinite(num)) return fallback;
-  const pageBytes = Math.floor(num);
-  if (pageBytes < 16) return fallback;
-  return Math.floor(pageBytes / 16) * 16;
-};
-
 const normalizePath = (pathname) => {
   if (typeof pathname !== "string") return null;
   let decoded;
@@ -282,17 +192,6 @@ const normalizePath = (pathname) => {
 };
 
 const CONTROL_CHAR_RE = /[\u0000-\u001F\u007F]/;
-
-const timingSafeEqual = (a, b) => {
-  const aNorm = typeof a === "string" ? a : "";
-  const bNorm = typeof b === "string" ? b : "";
-  if (aNorm.length !== bNorm.length) return false;
-  let diff = 0;
-  for (let i = 0; i < aNorm.length; i++) {
-    diff |= aNorm.charCodeAt(i) ^ bNorm.charCodeAt(i);
-  }
-  return diff === 0;
-};
 
 const normalizeBindPathInput = (raw) => {
   if (typeof raw !== "string" || raw.length === 0 || raw.length > BIND_PATH_INPUT_MAX_LEN) {
@@ -797,6 +696,7 @@ const buildTlsFingerprintHash = async (request) => {
 const normalizeConfig = (baseConfig) => {
   const mergedRaw = { ...DEFAULTS, ...(baseConfig || {}) };
   const { SITEVERIFY_URL: _legacySiteverifyUrl, ...merged } = mergedRaw;
+  const normalizedEq = normalizeEquihashParams(merged.POW_EQ_N, merged.POW_EQ_K);
   return {
     powcheck: normalizeBoolean(merged.powcheck, DEFAULTS.powcheck),
     turncheck: normalizeBoolean(merged.turncheck, DEFAULTS.turncheck),
@@ -812,59 +712,9 @@ const normalizeConfig = (baseConfig) => {
       DEFAULTS.stripBindPathHeader
     ),
     POW_VERSION: DEFAULTS.POW_VERSION,
-    POW_API_PREFIX: DEFAULTS.POW_API_PREFIX,
-    POW_DIFFICULTY_BASE: normalizeNumberClamp(
-      merged.POW_DIFFICULTY_BASE,
-      DEFAULTS.POW_DIFFICULTY_BASE,
-      1,
-      1000000000
-    ),
-    POW_DIFFICULTY_COEFF: normalizeNumberClamp(
-      merged.POW_DIFFICULTY_COEFF,
-      DEFAULTS.POW_DIFFICULTY_COEFF,
-      0,
-      100
-    ),
-    POW_MIN_STEPS: normalizeNumberClamp(
-      merged.POW_MIN_STEPS,
-      DEFAULTS.POW_MIN_STEPS,
-      1,
-      1000000
-    ),
-    POW_MAX_STEPS: normalizeNumberClamp(
-      merged.POW_MAX_STEPS,
-      DEFAULTS.POW_MAX_STEPS,
-      1,
-      1000000
-    ),
-    POW_HASHCASH_X: normalizeNumberClamp(
-      merged.POW_HASHCASH_X,
-      DEFAULTS.POW_HASHCASH_X,
-      0,
-      4294967296
-    ),
-    POW_PAGE_BYTES: normalizePageBytes(merged.POW_PAGE_BYTES, DEFAULTS.POW_PAGE_BYTES),
-    POW_MIX_ROUNDS: normalizeNumberClamp(merged.POW_MIX_ROUNDS, DEFAULTS.POW_MIX_ROUNDS, 1, 4),
-    POW_SEGMENT_LEN: normalizeSegmentLen(merged.POW_SEGMENT_LEN, DEFAULTS.POW_SEGMENT_LEN),
-    POW_SAMPLE_RATE: normalizeSampleRate(merged.POW_SAMPLE_RATE, DEFAULTS.POW_SAMPLE_RATE),
-    POW_OPEN_BATCH: normalizeNumberClamp(
-      merged.POW_OPEN_BATCH,
-      DEFAULTS.POW_OPEN_BATCH,
-      1,
-      256
-    ),
-    POW_COMMIT_TTL_SEC: normalizeNumberClamp(
-      merged.POW_COMMIT_TTL_SEC,
-      DEFAULTS.POW_COMMIT_TTL_SEC,
-      0,
-      1000000000
-    ),
-    POW_MAX_GEN_TIME_SEC: normalizeNumberClamp(
-      merged.POW_MAX_GEN_TIME_SEC,
-      DEFAULTS.POW_MAX_GEN_TIME_SEC,
-      1,
-      1000000000
-    ),
+    POW_API_PREFIX: normalizeApiPrefix(merged.POW_API_PREFIX),
+    POW_EQ_N: normalizedEq.n,
+    POW_EQ_K: normalizedEq.k,
     POW_TICKET_TTL_SEC: normalizeNumberClamp(
       merged.POW_TICKET_TTL_SEC,
       DEFAULTS.POW_TICKET_TTL_SEC,
@@ -961,8 +811,8 @@ const normalizeConfig = (baseConfig) => {
     POW_BIND_TLS: normalizeBoolean(merged.POW_BIND_TLS, DEFAULTS.POW_BIND_TLS),
     IPV4_PREFIX: normalizeNumberClamp(merged.IPV4_PREFIX, DEFAULTS.IPV4_PREFIX, 0, 32),
     IPV6_PREFIX: normalizeNumberClamp(merged.IPV6_PREFIX, DEFAULTS.IPV6_PREFIX, 0, 128),
-    POW_ESM_URL: normalizeString(merged.POW_ESM_URL, DEFAULTS.POW_ESM_URL),
     POW_GLUE_URL: normalizeString(merged.POW_GLUE_URL, DEFAULTS.POW_GLUE_URL),
+    POW_ESM_URL: normalizeString(merged.POW_ESM_URL, DEFAULTS.POW_ESM_URL),
     TURNSTILE_SITEKEY: normalizeString(merged.TURNSTILE_SITEKEY, ""),
     TURNSTILE_SECRET: normalizeString(merged.TURNSTILE_SECRET, ""),
     SITEVERIFY_URLS: normalizeStringArray(merged.SITEVERIFY_URLS, DEFAULTS.SITEVERIFY_URLS),
@@ -1041,244 +891,90 @@ const getConfigById = (cfgId) => {
   return entry && entry.config ? entry.config : null;
 };
 
-const parsePowTicket = (ticketB64) => {
-  if (!isBase64Url(ticketB64, 1, B64_TICKET_MAX_LEN)) return null;
-  const bytes = base64UrlDecodeToBytes(ticketB64);
-  if (!bytes) return null;
-  const raw = decoder.decode(bytes);
-  const parts = raw.split(".");
-  if (parts.length !== 7) return null;
-  const cfgId = Number.parseInt(parts[4], 10);
-  const issuedAt = Number.parseInt(parts[5], 10);
-  if (!Number.isFinite(cfgId)) return null;
-  if (!Number.isFinite(issuedAt) || issuedAt <= 0) return null;
-  return { cfgId };
+const parsePowTicketCfgId = (ticketB64) => {
+  const ticket = parseV5Ticket(ticketB64);
+  return ticket ? { cfgId: ticket.cfgId } : null;
 };
 
-const parsePowTicketFull = (ticketB64) => {
-  if (!isBase64Url(ticketB64, 1, B64_TICKET_MAX_LEN)) return null;
-  const bytes = base64UrlDecodeToBytes(ticketB64);
-  if (!bytes) return null;
-  const raw = decoder.decode(bytes);
-  const parts = raw.split(".");
-  if (parts.length !== 7) return null;
-  const v = Number.parseInt(parts[0], 10);
-  const e = Number.parseInt(parts[1], 10);
-  const L = Number.parseInt(parts[2], 10);
-  const r = parts[3] || "";
-  const cfgId = Number.parseInt(parts[4], 10);
-  const issuedAt = Number.parseInt(parts[5], 10);
-  const mac = parts[6] || "";
-  if (!Number.isFinite(v) || v <= 0) return null;
-  if (!Number.isFinite(e) || e <= 0) return null;
-  if (!Number.isFinite(L) || L <= 0) return null;
-  if (!Number.isFinite(cfgId) || cfgId < 0) return null;
-  if (!Number.isFinite(issuedAt) || issuedAt <= 0) return null;
-  if (!isBase64Url(r, 1, B64_HASH_MAX_LEN)) return null;
-  if (!isBase64Url(mac, 1, B64_HASH_MAX_LEN)) return null;
-  return { v, e, L, r, cfgId, issuedAt, mac, ticketB64 };
-};
-
-const parseConsumeToken = (value) => {
-  if (!value) return null;
-  const parts = value.split(".");
-  if (parts.length !== 6 || parts[0] !== "v2") return null;
-  const ticketB64 = parts[1] || "";
-  const exp = Number.parseInt(parts[2], 10);
-  const captchaTag = parts[3] || "";
-  const m = Number.parseInt(parts[4], 10);
-  const mac = parts[5] || "";
-  if (!Number.isFinite(exp) || exp <= 0) return null;
-  if (!Number.isFinite(m) || m < 0) return null;
-  if (!isBase64Url(ticketB64, 1, B64_TICKET_MAX_LEN)) return null;
-  if (!isBase64Url(captchaTag, CAPTCHA_TAG_LEN, CAPTCHA_TAG_LEN)) return null;
-  if (!isBase64Url(mac, 1, B64_HASH_MAX_LEN)) return null;
-  return { ticketB64, exp, captchaTag, m, mac };
-};
-
-const makeConsumeMac = async (powSecret, ticketB64, exp, captchaTag, m) =>
-  hmacSha256Base64UrlNoPad(powSecret, `U|${ticketB64}|${exp}|${captchaTag}|${m}`);
-
-const verifyConsumeIntegrity = async (
-  consumeToken,
-  powSecret,
-  nowSeconds,
-  requiredMask,
-  options = {}
-) => {
-  const withReason = options && options.withReason === true;
-  const fail = (reason) => (withReason ? { ok: false, reason } : null);
-  const parsed = parseConsumeToken(consumeToken);
-  if (!parsed) return fail("consume_invalid");
-  if (!powSecret) return fail("consume_invalid");
-  if (parsed.exp <= nowSeconds) return fail("consume_stale");
-  if ((parsed.m & requiredMask) !== requiredMask) return fail("consume_invalid");
-  const expectedMac = await makeConsumeMac(
-    powSecret,
-    parsed.ticketB64,
-    parsed.exp,
-    parsed.captchaTag,
-    parsed.m
-  );
-  if (!timingSafeEqual(expectedMac, parsed.mac)) return fail("consume_invalid");
-  return withReason ? { ok: true, parsed } : parsed;
-};
-
-const computePathHash = async (canonicalPath) =>
-  base64UrlEncodeNoPad(await sha256Bytes(canonicalPath));
-
-const getPowBindingValuesWithPathHash = async (pathHash, config, derived) => {
-  const bindPath = config.POW_BIND_PATH !== false;
-  const bindIp = config.POW_BIND_IPRANGE !== false;
-  const bindCountry = config.POW_BIND_COUNTRY === true;
-  const bindAsn = config.POW_BIND_ASN === true;
-  const bindTls = config.POW_BIND_TLS === true;
-  const normalizedPathHash =
-    bindPath && typeof pathHash === "string" && pathHash ? pathHash : bindPath ? "" : "any";
-  if (bindPath && !normalizedPathHash) return null;
-  const source = derived && typeof derived === "object" ? derived : null;
-  const ipScope = bindIp && source && typeof source.ipScope === "string" ? source.ipScope : "";
-  if (bindIp && !ipScope) return null;
-  const country =
-    bindCountry && source && typeof source.country === "string" ? source.country : "";
-  if (bindCountry && !country) return null;
-  const asn = bindAsn && source && typeof source.asn === "string" ? source.asn : "";
-  if (bindAsn && !asn) return null;
-  const tlsFingerprint =
-    bindTls && source && typeof source.tlsFingerprint === "string" ? source.tlsFingerprint : "";
-  if (bindTls && !tlsFingerprint) return null;
-  return {
-    pathHash: normalizedPathHash,
-    ipScope: bindIp ? ipScope : "any",
-    country: bindCountry ? country : "any",
-    asn: bindAsn ? asn : "any",
-    tlsFingerprint: bindTls ? tlsFingerprint : "any",
-  };
-};
-
-const getPowBindingValues = async (canonicalPath, config, derived) => {
-  const bindPath = config.POW_BIND_PATH !== false;
-  const pathHash = bindPath ? await computePathHash(canonicalPath) : "any";
-  return getPowBindingValuesWithPathHash(pathHash, config, derived);
-};
-
-const getPowDifficultyBinding = (config) => ({
-  pageBytes: Math.max(1, Math.floor(Number(config?.POW_PAGE_BYTES) || 0)),
-  mixRounds: Math.max(1, Math.floor(Number(config?.POW_MIX_ROUNDS) || 0)),
-});
-
-const makePowBindingString = (
-  ticket,
-  hostname,
-  pathHash,
-  ipScope,
-  country,
-  asn,
-  tlsFingerprint,
-  pageBytes,
-  mixRounds
-) => {
-  const host = typeof hostname === "string" ? hostname.toLowerCase() : "";
-  return (
-    ticket.v +
-    "|" +
-    ticket.e +
-    "|" +
-    ticket.L +
-    "|" +
-    ticket.r +
-    "|" +
-    ticket.cfgId +
-    "|" +
-    host +
-    "|" +
-    pathHash +
-    "|" +
-    ipScope +
-    "|" +
-    country +
-    "|" +
-    asn +
-    "|" +
-    tlsFingerprint +
-    "|" +
-    pageBytes +
-    "|" +
-    mixRounds +
-    "|" +
-    ticket.issuedAt
-  );
-};
-
-const verifyTicketMac = async (ticket, hostname, bindingValues, config, powSecret) => {
-  if (!powSecret) return "";
-  const difficultyBinding = getPowDifficultyBinding(config);
-  const bindingString = makePowBindingString(
-    ticket,
-    hostname,
-    bindingValues.pathHash,
-    bindingValues.ipScope,
-    bindingValues.country,
-    bindingValues.asn,
-    bindingValues.tlsFingerprint,
-    difficultyBinding.pageBytes,
-    difficultyBinding.mixRounds
-  );
-  const expectedMac = await hmacSha256Base64UrlNoPad(powSecret, bindingString);
-  if (!timingSafeEqual(expectedMac, ticket.mac)) return "";
-  return bindingString;
-};
-
-
-const parsePowCommitCookie = (value) => {
-  if (!value) return null;
-  const parts = value.split(".");
-  if (parts.length !== 8) return null;
-  if (parts[0] !== "v5") return null;
-  const ticketB64 = parts[1] || "";
-  const rootB64 = parts[2] || "";
-  const pathHash = parts[3] || "";
-  const captchaTag = parts[4] || "";
-  const nonce = parts[5] || "";
-  const exp = Number.parseInt(parts[6], 10);
-  const mac = parts[7] || "";
-  if (!isBase64Url(ticketB64, 1, B64_TICKET_MAX_LEN)) return null;
-  if (!isBase64Url(rootB64, 1, B64_HASH_MAX_LEN)) return null;
-  if (!(pathHash === "any" || isBase64Url(pathHash, 1, B64_HASH_MAX_LEN))) return null;
-  if (!(captchaTag === "any" || isBase64Url(captchaTag, CAPTCHA_TAG_LEN, CAPTCHA_TAG_LEN))) {
-    return null;
-  }
-  if (!isBase64Url(nonce, NONCE_MIN_LEN, NONCE_MAX_LEN)) return null;
-  if (!isBase64Url(mac, 1, B64_HASH_MAX_LEN)) return null;
-  if (!Number.isFinite(exp) || exp <= 0) return null;
-  return { ticketB64 };
-};
-
-const readJsonBody = async (request) => {
+const readBoundedJsonBody = async (request) => {
   try {
-    return await request.json();
+    const body = request.body;
+    if (!body) return null;
+    const reader = body.getReader();
+    const chunks = [];
+    let total = 0;
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (!value) continue;
+        total += value.byteLength;
+        if (total > VERIFY_BODY_MAX_BYTES) {
+          try {
+            const canceled = reader.cancel();
+            if (canceled && typeof canceled.catch === "function") void canceled.catch(() => {});
+          } catch {}
+          return null;
+        }
+        chunks.push(value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    const raw = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
   } catch {
     return null;
   }
 };
 
-const resolveCfgIdFromPowApi = async (request, requestPath) => {
-  if (!requestPath.startsWith(`${DEFAULTS.POW_API_PREFIX}/`)) return null;
-  const action = requestPath.slice(DEFAULTS.POW_API_PREFIX.length);
-  if (action === "/commit" || action === "/cap") {
-    const body = await readJsonBody(request.clone());
-    const ticketB64 = body && typeof body.ticketB64 === "string" ? body.ticketB64 : "";
-    const ticket = parsePowTicket(ticketB64);
-    return ticket ? ticket.cfgId : null;
+const findConfiguredApiOwner = (url, requestPath) => {
+  const host = typeof url?.hostname === "string" ? url.hostname.toLowerCase() : "";
+  if (!host) return null;
+  for (let i = 0; i < COMPILED_CONFIG.length; i += 1) {
+    const entry = COMPILED_CONFIG[i];
+    try {
+      if (!matchHostFast(host, entry)) continue;
+      const rawConfig = entry && entry.config && typeof entry.config === "object" ? entry.config : DEFAULTS;
+      const prefix = normalizeApiPrefix(rawConfig.POW_API_PREFIX);
+      if (requestPath.startsWith(`${prefix}/`)) {
+        return { cfgId: i, config: rawConfig };
+      }
+    } catch {}
   }
-  if (action === "/challenge" || action === "/open") {
-    const body = await readJsonBody(request.clone());
-    const commitToken = body && typeof body.commitToken === "string" ? body.commitToken : "";
-    const commit = parsePowCommitCookie(commitToken);
-    const ticket = commit ? parsePowTicket(commit.ticketB64) : null;
-    return ticket ? ticket.cfgId : null;
+  if (requestPath.startsWith(`${DEFAULTS.POW_API_PREFIX}/`)) {
+    return { cfgId: -1, config: DEFAULTS };
   }
   return null;
+};
+
+const resolveCfgIdFromPowApi = async (request, requestPath, apiOwner) => {
+  if (!apiOwner || !requestPath.endsWith("/verify")) return null;
+  let body;
+  try {
+    body = await readBoundedJsonBody(request);
+  } catch {
+    return null;
+  }
+  const ticketB64 = body && typeof body.ticketB64 === "string" ? body.ticketB64 : "";
+  const ticket = parsePowTicketCfgId(ticketB64);
+  if (!ticket) return null;
+  const config = getConfigById(ticket.cfgId);
+  if (!config) return null;
+  let normalized;
+  try {
+    normalized = normalizeConfig(config);
+  } catch {
+    return null;
+  }
+  return requestPath === `${normalized.POW_API_PREFIX}/verify` ? ticket.cfgId : null;
 };
 
 const buildDerivedBindings = async (request, config) => {
@@ -1319,7 +1015,9 @@ const buildSignedInnerPayload = async (
 };
 
 const resolveConfig = async (request, url, requestPath) => {
-  const cfgIdFromApi = await resolveCfgIdFromPowApi(request, requestPath);
+  const apiOwner = findConfiguredApiOwner(url, requestPath);
+  const selected = pickConfigWithId(request, url, url.hostname, requestPath);
+  const cfgIdFromApi = await resolveCfgIdFromPowApi(request, requestPath, apiOwner);
   if (Number.isInteger(cfgIdFromApi)) {
     const config = getConfigById(cfgIdFromApi);
     if (!config) {
@@ -1327,7 +1025,7 @@ const resolveConfig = async (request, url, requestPath) => {
     }
     return { cfgId: cfgIdFromApi, config };
   }
-  const selected = pickConfigWithId(request, url, url.hostname, requestPath);
+  if (apiOwner) return apiOwner;
   if (selected) return { cfgId: selected.cfgId, config: selected.config || DEFAULTS };
   return { cfgId: -1, config: DEFAULTS };
 };
@@ -1348,10 +1046,18 @@ export default {
       return new Response(null, { status: 500 });
     }
 
+    const apiOwner = findConfiguredApiOwner(url, requestPath);
+    const forwardClone = apiOwner && requestPath.endsWith("/verify") ? request.clone() : null;
     const resolved = await resolveConfig(request, url, requestPath);
-    const normalizedConfig = normalizeConfig(resolved.config);
+    let normalizedConfig;
+    try {
+      normalizedConfig = normalizeConfig(resolved.config);
+    } catch {
+      return new Response(null, { status: 500 });
+    }
 
-    const bypass = resolveBypassRequest(request, url, normalizedConfig);
+    const forwardingSource = forwardClone || request;
+    const bypass = resolveBypassRequest(forwardingSource, url, normalizedConfig);
     let forwardRequest = bypass.forwardRequest;
     let forwardUrl = new URL(forwardRequest.url);
 
@@ -1385,7 +1091,7 @@ export default {
     }
 
     const { payload, mac, exp } = await buildSignedInnerPayload(
-      forwardRequest,
+      request,
       resolved.cfgId,
       normalizedConfig,
       strategySnapshot

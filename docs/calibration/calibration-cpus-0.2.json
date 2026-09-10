@@ -1,0 +1,3625 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-10T00:24:31.476Z",
+  "profile": "docker-cpus-0.2",
+  "publishedDefault": {
+    "n": 96,
+    "k": 5
+  },
+  "target": {
+    "desktopMs": 3000,
+    "mobileMs": 15000
+  },
+  "environment": {
+    "host": "33c1e416ee53",
+    "node": "v22.12.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "AMD Ryzen 7 7700 8-Core Processor",
+    "logicalCpus": 8,
+    "totalMemoryBytes": 16315953152,
+    "browser": "131.0.6778.33",
+    "browserImage": "mcr.microsoft.com/playwright:v1.49.1-noble",
+    "browserEngine": "Chromium 131 (image-pinned)",
+    "proxy": "Docker whole-container CPU quota 0.2; validated slowdown proxy, not a phone measurement"
+  },
+  "cases": [
+    {
+      "id": "eq-96-5-batch-16",
+      "n": 96,
+      "k": 5,
+      "cfgId": 16,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-17",
+      "n": 96,
+      "k": 5,
+      "cfgId": 17,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-18",
+      "n": 96,
+      "k": 5,
+      "cfgId": 18,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-19",
+      "n": 96,
+      "k": 5,
+      "cfgId": 19,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-20",
+      "n": 96,
+      "k": 5,
+      "cfgId": 20,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-21",
+      "n": 96,
+      "k": 5,
+      "cfgId": 21,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-22",
+      "n": 96,
+      "k": 5,
+      "cfgId": 22,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-23",
+      "n": 96,
+      "k": 5,
+      "cfgId": 23,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-24",
+      "n": 96,
+      "k": 5,
+      "cfgId": 24,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-25",
+      "n": 96,
+      "k": 5,
+      "cfgId": 25,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-26",
+      "n": 96,
+      "k": 5,
+      "cfgId": 26,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-27",
+      "n": 96,
+      "k": 5,
+      "cfgId": 27,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-28",
+      "n": 96,
+      "k": 5,
+      "cfgId": 28,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-29",
+      "n": 96,
+      "k": 5,
+      "cfgId": 29,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-30",
+      "n": 96,
+      "k": 5,
+      "cfgId": 30,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-96-5-batch-31",
+      "n": 96,
+      "k": 5,
+      "cfgId": 31,
+      "nonceAttempts": [
+        0,
+        1
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-90-5",
+      "n": 90,
+      "k": 5,
+      "cfgId": 10,
+      "nonceAttempts": [
+        0
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-84-5",
+      "n": 84,
+      "k": 5,
+      "cfgId": 11,
+      "nonceAttempts": [
+        0
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-102-5",
+      "n": 102,
+      "k": 5,
+      "cfgId": 12,
+      "nonceAttempts": [
+        0
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-28-3",
+      "n": 28,
+      "k": 3,
+      "cfgId": 13,
+      "nonceAttempts": [
+        0
+      ],
+      "required": true
+    },
+    {
+      "id": "eq-112-6",
+      "n": 112,
+      "k": 6,
+      "cfgId": 14,
+      "nonceAttempts": [
+        0
+      ],
+      "required": true
+    }
+  ],
+  "deterministicCases": [
+    {
+      "ticketB64": "NS40MDAwMDAwNjAwLjE1LjQwMDAwMDAwMDAuQUFFQ0F3UUZCZ2NJQ1FvTERBME9Edy4xMi4yLjEuZkktVmxpZDFWeTJ4NlJrUTlUV005YTBBYkdPZjRIclBzdGxGRWswSGhVNA",
+      "seedB64": "VEngmR4EENjwBqZUeNVPg-FlD_GJsV2tX9sURIxYm1A",
+      "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "proofB64": "AAAAAAAAAB0AAAAVAAAAJA",
+      "attempt": 0,
+      "params": {
+        "n": 12,
+        "k": 2,
+        "rows": 64
+      },
+      "serverStatus": 200,
+      "serverResponse": {
+        "ok": true,
+        "mode": "proof",
+        "proofTtlSec": 180
+      },
+      "serverVerifiable": true
+    }
+  ],
+  "verifier": {
+    "available": true,
+    "params": {
+      "n": 96,
+      "k": 5
+    },
+    "proofBytes": 128,
+    "cold": {
+      "importMs": 13.73,
+      "verifyMs": 4.06,
+      "ok": true,
+      "heapDeltaBytes": 83944
+    },
+    "warm": {
+      "samples": 20,
+      "medianMs": 1.88,
+      "p95Ms": 96.6,
+      "processCpuMs": {
+        "median": 5.48,
+        "p95": 6.29,
+        "scope": "Node process CPU includes JIT and background threads; it is not a Cloudflare isolate CPU measurement"
+      },
+      "maxHeapDeltaBytes": 1784888
+    },
+    "snippetBudget": {
+      "cpuMs": 5,
+      "allocationBytes": 2097152
+    },
+    "localBudgetComparison": {
+      "warmP95WithinCpu": false,
+      "warmP95WallWithinGuidance": false,
+      "warmMaxHeapWithinAllocation": true,
+      "qualification": "Local Node CPU, wall, and heap measurements; Cloudflare deployment and isolate allocation were not measured"
+    }
+  },
+  "resourceProbes": [
+    {
+      "n": 102,
+      "k": 5,
+      "proofLength": 128,
+      "collisionBits": 17,
+      "densityRows": 262144,
+      "selectedRows": 249475,
+      "attempts": [
+        {
+          "attempt": 0,
+          "result": 0,
+          "elapsedMs": 4009.42
+        },
+        {
+          "attempt": 1,
+          "result": 128,
+          "elapsedMs": 2902.57
+        },
+        {
+          "attempt": 2,
+          "result": 0,
+          "elapsedMs": 2810.69
+        },
+        {
+          "attempt": 3,
+          "result": 0,
+          "elapsedMs": 2801.95
+        },
+        {
+          "attempt": 4,
+          "result": 128,
+          "elapsedMs": 2894.37
+        },
+        {
+          "attempt": 5,
+          "result": 0,
+          "elapsedMs": 2892.89
+        },
+        {
+          "attempt": 6,
+          "result": 0,
+          "elapsedMs": 2806.78
+        },
+        {
+          "attempt": 7,
+          "result": 128,
+          "elapsedMs": 2800.21
+        }
+      ],
+      "wasmLinearMemoryBytes": 45809664,
+      "peakServerRssBytes": 137867264,
+      "finding": "Fixed nonce probes produced valid proofs"
+    },
+    {
+      "n": 108,
+      "k": 5,
+      "proofLength": 128,
+      "collisionBits": 18,
+      "densityRows": 524288,
+      "selectedRows": 248551,
+      "attempts": [
+        {
+          "attempt": 0,
+          "result": 0,
+          "elapsedMs": 1306.49
+        },
+        {
+          "attempt": 1,
+          "result": 0,
+          "elapsedMs": 1298.39
+        },
+        {
+          "attempt": 2,
+          "result": 0,
+          "elapsedMs": 1397.4
+        },
+        {
+          "attempt": 3,
+          "result": 0,
+          "elapsedMs": 1291.41
+        },
+        {
+          "attempt": 4,
+          "result": 0,
+          "elapsedMs": 1210.03
+        },
+        {
+          "attempt": 5,
+          "result": 0,
+          "elapsedMs": 1302.82
+        },
+        {
+          "attempt": 6,
+          "result": 0,
+          "elapsedMs": 1300.16
+        },
+        {
+          "attempt": 7,
+          "result": 0,
+          "elapsedMs": 1289.14
+        }
+      ],
+      "wasmLinearMemoryBytes": 28770304,
+      "peakServerRssBytes": 164737024,
+      "finding": "No proof in eight fixed nonces; candidate effectiveness needs broader sampling"
+    }
+  ],
+  "publishedDefaultDistribution": {
+    "samples": 16,
+    "success": 16,
+    "expiry": 0,
+    "fatal": 0,
+    "acquisition": {
+      "medianMs": 198.1,
+      "p95Ms": 290.2
+    },
+    "initialization": {
+      "medianMs": 98.25,
+      "p95Ms": 293
+    },
+    "solve": {
+      "medianMs": 7150,
+      "p95Ms": 13404.9
+    },
+    "postToken": {
+      "medianMs": 0.3,
+      "p95Ms": 95.6
+    },
+    "verifyResponseParse": {
+      "medianMs": 200.85,
+      "p95Ms": 396.7
+    },
+    "fullPostToken": {
+      "medianMs": 7695.1,
+      "p95Ms": 14301.2
+    },
+    "serverVerify": {
+      "medianMs": 194.31,
+      "p95Ms": 299.47
+    },
+    "memory": {
+      "wasmLinearMemoryBytes": {
+        "median": 43057152,
+        "p95": 60555264
+      },
+      "pageHeapUsedBytes": {
+        "median": 10000000,
+        "p95": 10000000
+      },
+      "serverRssBytes": {
+        "median": 90148864,
+        "p95": 92823552
+      }
+    }
+  },
+  "pairDistributions": {
+    "96/5": {
+      "samples": 16,
+      "success": 16,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 198.1,
+        "p95Ms": 290.2
+      },
+      "initialization": {
+        "medianMs": 98.25,
+        "p95Ms": 293
+      },
+      "solve": {
+        "medianMs": 7150,
+        "p95Ms": 13404.9
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 95.6
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.85,
+        "p95Ms": 396.7
+      },
+      "fullPostToken": {
+        "medianMs": 7695.1,
+        "p95Ms": 14301.2
+      },
+      "serverVerify": {
+        "medianMs": 194.31,
+        "p95Ms": 299.47
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 43057152,
+          "p95": 60555264
+        },
+        "pageHeapUsedBytes": {
+          "median": 10000000,
+          "p95": 10000000
+        },
+        "serverRssBytes": {
+          "median": 90148864,
+          "p95": 92823552
+        }
+      }
+    },
+    "90/5": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 196.1,
+        "p95Ms": 196.1
+      },
+      "initialization": {
+        "medianMs": 98.8,
+        "p95Ms": 98.8
+      },
+      "solve": {
+        "medianMs": 3399.5,
+        "p95Ms": 3399.5
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 201.3,
+        "p95Ms": 201.3
+      },
+      "fullPostToken": {
+        "medianMs": 3896.7,
+        "p95Ms": 3896.7
+      },
+      "serverVerify": {
+        "medianMs": 99.95,
+        "p95Ms": 99.95
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 31129600,
+          "p95": 31129600
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 92954624,
+          "p95": 92954624
+        }
+      }
+    },
+    "84/5": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 289.9,
+        "p95Ms": 289.9
+      },
+      "initialization": {
+        "medianMs": 99.7,
+        "p95Ms": 99.7
+      },
+      "solve": {
+        "medianMs": 1506.8,
+        "p95Ms": 1506.8
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 394.4,
+        "p95Ms": 394.4
+      },
+      "fullPostToken": {
+        "medianMs": 2292.6,
+        "p95Ms": 2292.6
+      },
+      "serverVerify": {
+        "medianMs": 193.01,
+        "p95Ms": 193.01
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 9699328,
+          "p95": 9699328
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 94658560,
+          "p95": 94658560
+        }
+      }
+    },
+    "102/5": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 197.6,
+        "p95Ms": 197.6
+      },
+      "initialization": {
+        "medianMs": 96.8,
+        "p95Ms": 96.8
+      },
+      "solve": {
+        "medianMs": 11298.3,
+        "p95Ms": 11298.3
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.2,
+        "p95Ms": 200.2
+      },
+      "fullPostToken": {
+        "medianMs": 11794.1,
+        "p95Ms": 11794.1
+      },
+      "serverVerify": {
+        "medianMs": 100.44,
+        "p95Ms": 100.44
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 45809664,
+          "p95": 45809664
+        },
+        "pageHeapUsedBytes": {
+          "median": 10000000,
+          "p95": 10000000
+        },
+        "serverRssBytes": {
+          "median": 95707136,
+          "p95": 95707136
+        }
+      }
+    },
+    "28/3": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 199.4,
+        "p95Ms": 199.4
+      },
+      "initialization": {
+        "medianMs": 97.1,
+        "p95Ms": 97.1
+      },
+      "solve": {
+        "medianMs": 2.2,
+        "p95Ms": 2.2
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 197,
+        "p95Ms": 197
+      },
+      "fullPostToken": {
+        "medianMs": 592.2,
+        "p95Ms": 592.2
+      },
+      "serverVerify": {
+        "medianMs": 100.7,
+        "p95Ms": 100.7
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 1179648,
+          "p95": 1179648
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 95707136,
+          "p95": 95707136
+        }
+      }
+    },
+    "112/6": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 105.6,
+        "p95Ms": 105.6
+      },
+      "initialization": {
+        "medianMs": 97.3,
+        "p95Ms": 97.3
+      },
+      "solve": {
+        "medianMs": 10302,
+        "p95Ms": 10302
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 294.5,
+        "p95Ms": 294.5
+      },
+      "fullPostToken": {
+        "medianMs": 10800.6,
+        "p95Ms": 10800.6
+      },
+      "serverVerify": {
+        "medianMs": 193.69,
+        "p95Ms": 193.69
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 79757312,
+          "p95": 79757312
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 95707136,
+          "p95": 95707136
+        }
+      }
+    }
+  },
+  "summaries": {
+    "eq-96-5-batch-16": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 205.1,
+        "p95Ms": 205.1
+      },
+      "initialization": {
+        "medianMs": 293,
+        "p95Ms": 293
+      },
+      "solve": {
+        "medianMs": 13404.9,
+        "p95Ms": 13404.9
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 396.7,
+        "p95Ms": 396.7
+      },
+      "fullPostToken": {
+        "medianMs": 14301.2,
+        "p95Ms": 14301.2
+      },
+      "serverVerify": {
+        "medianMs": 299.47,
+        "p95Ms": 299.47
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 60555264,
+          "p95": 60555264
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 86413312,
+          "p95": 86413312
+        }
+      }
+    },
+    "eq-96-5-batch-17": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 288.6,
+        "p95Ms": 288.6
+      },
+      "initialization": {
+        "medianMs": 4.8,
+        "p95Ms": 4.8
+      },
+      "solve": {
+        "medianMs": 12094.3,
+        "p95Ms": 12094.3
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 201.4,
+        "p95Ms": 201.4
+      },
+      "fullPostToken": {
+        "medianMs": 12590.3,
+        "p95Ms": 12590.3
+      },
+      "serverVerify": {
+        "medianMs": 101.57,
+        "p95Ms": 101.57
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 60555264,
+          "p95": 60555264
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 87080960,
+          "p95": 87080960
+        }
+      }
+    },
+    "eq-96-5-batch-18": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 199.6,
+        "p95Ms": 199.6
+      },
+      "initialization": {
+        "medianMs": 94.1,
+        "p95Ms": 94.1
+      },
+      "solve": {
+        "medianMs": 7197.2,
+        "p95Ms": 7197.2
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.9,
+        "p95Ms": 200.9
+      },
+      "fullPostToken": {
+        "medianMs": 7692.9,
+        "p95Ms": 7692.9
+      },
+      "serverVerify": {
+        "medianMs": 197.6,
+        "p95Ms": 197.6
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 60555264,
+          "p95": 60555264
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 87736320,
+          "p95": 87736320
+        }
+      }
+    },
+    "eq-96-5-batch-19": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 196.3,
+        "p95Ms": 196.3
+      },
+      "initialization": {
+        "medianMs": 100.2,
+        "p95Ms": 100.2
+      },
+      "solve": {
+        "medianMs": 7098.3,
+        "p95Ms": 7098.3
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 201.4,
+        "p95Ms": 201.4
+      },
+      "fullPostToken": {
+        "medianMs": 7597.3,
+        "p95Ms": 7597.3
+      },
+      "serverVerify": {
+        "medianMs": 197.74,
+        "p95Ms": 197.74
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 39911424,
+          "p95": 39911424
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 87998464,
+          "p95": 87998464
+        }
+      }
+    },
+    "eq-96-5-batch-20": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 197.2,
+        "p95Ms": 197.2
+      },
+      "initialization": {
+        "medianMs": 100.4,
+        "p95Ms": 100.4
+      },
+      "solve": {
+        "medianMs": 7098.8,
+        "p95Ms": 7098.8
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 299.7,
+        "p95Ms": 299.7
+      },
+      "fullPostToken": {
+        "medianMs": 7697.4,
+        "p95Ms": 7697.4
+      },
+      "serverVerify": {
+        "medianMs": 197.59,
+        "p95Ms": 197.59
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 39780352,
+          "p95": 39780352
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 88784896,
+          "p95": 88784896
+        }
+      }
+    },
+    "eq-96-5-batch-21": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 197.6,
+        "p95Ms": 197.6
+      },
+      "initialization": {
+        "medianMs": 97.9,
+        "p95Ms": 97.9
+      },
+      "solve": {
+        "medianMs": 7201.5,
+        "p95Ms": 7201.5
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 199.1,
+        "p95Ms": 199.1
+      },
+      "fullPostToken": {
+        "medianMs": 7697.3,
+        "p95Ms": 7697.3
+      },
+      "serverVerify": {
+        "medianMs": 100.73,
+        "p95Ms": 100.73
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 60555264,
+          "p95": 60555264
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 89440256,
+          "p95": 89440256
+        }
+      }
+    },
+    "eq-96-5-batch-22": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 288.8,
+        "p95Ms": 288.8
+      },
+      "initialization": {
+        "medianMs": 4.9,
+        "p95Ms": 4.9
+      },
+      "solve": {
+        "medianMs": 7294.4,
+        "p95Ms": 7294.4
+      },
+      "postToken": {
+        "medianMs": 0.4,
+        "p95Ms": 0.4
+      },
+      "verifyResponseParse": {
+        "medianMs": 201.7,
+        "p95Ms": 201.7
+      },
+      "fullPostToken": {
+        "medianMs": 7791,
+        "p95Ms": 7791
+      },
+      "serverVerify": {
+        "medianMs": 100.5,
+        "p95Ms": 100.5
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 39583744,
+          "p95": 39583744
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 89923584,
+          "p95": 89923584
+        }
+      }
+    },
+    "eq-96-5-batch-23": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 198.8,
+        "p95Ms": 198.8
+      },
+      "initialization": {
+        "medianMs": 189.1,
+        "p95Ms": 189.1
+      },
+      "solve": {
+        "medianMs": 6599.4,
+        "p95Ms": 6599.4
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 202.1,
+        "p95Ms": 202.1
+      },
+      "fullPostToken": {
+        "medianMs": 7190.6,
+        "p95Ms": 7190.6
+      },
+      "serverVerify": {
+        "medianMs": 198.53,
+        "p95Ms": 198.53
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 40960000,
+          "p95": 40960000
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 90185728,
+          "p95": 90185728
+        }
+      }
+    },
+    "eq-96-5-batch-24": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 195.4,
+        "p95Ms": 195.4
+      },
+      "initialization": {
+        "medianMs": 97.2,
+        "p95Ms": 97.2
+      },
+      "solve": {
+        "medianMs": 6798.1,
+        "p95Ms": 6798.1
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 201.6,
+        "p95Ms": 201.6
+      },
+      "fullPostToken": {
+        "medianMs": 7293.4,
+        "p95Ms": 7293.4
+      },
+      "serverVerify": {
+        "medianMs": 198.34,
+        "p95Ms": 198.34
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 60555264,
+          "p95": 60555264
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 90972160,
+          "p95": 90972160
+        }
+      }
+    },
+    "eq-96-5-batch-25": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 196.4,
+        "p95Ms": 196.4
+      },
+      "initialization": {
+        "medianMs": 100.6,
+        "p95Ms": 100.6
+      },
+      "solve": {
+        "medianMs": 6798.7,
+        "p95Ms": 6798.7
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.6,
+        "p95Ms": 200.6
+      },
+      "fullPostToken": {
+        "medianMs": 7297.5,
+        "p95Ms": 7297.5
+      },
+      "serverVerify": {
+        "medianMs": 197.2,
+        "p95Ms": 197.2
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 40632320,
+          "p95": 40632320
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 90542080,
+          "p95": 90542080
+        }
+      }
+    },
+    "eq-96-5-batch-26": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 108.2,
+        "p95Ms": 108.2
+      },
+      "initialization": {
+        "medianMs": 95.1,
+        "p95Ms": 95.1
+      },
+      "solve": {
+        "medianMs": 12296.8,
+        "p95Ms": 12296.8
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.8,
+        "p95Ms": 200.8
+      },
+      "fullPostToken": {
+        "medianMs": 12702,
+        "p95Ms": 12702
+      },
+      "serverVerify": {
+        "medianMs": 101.13,
+        "p95Ms": 101.13
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 40304640,
+          "p95": 40304640
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 90312704,
+          "p95": 90312704
+        }
+      }
+    },
+    "eq-96-5-batch-27": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 195.8,
+        "p95Ms": 195.8
+      },
+      "initialization": {
+        "medianMs": 97.7,
+        "p95Ms": 97.7
+      },
+      "solve": {
+        "medianMs": 6797.9,
+        "p95Ms": 6797.9
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 103.3,
+        "p95Ms": 103.3
+      },
+      "fullPostToken": {
+        "medianMs": 7196,
+        "p95Ms": 7196
+      },
+      "serverVerify": {
+        "medianMs": 100.46,
+        "p95Ms": 100.46
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 39518208,
+          "p95": 39518208
+        },
+        "pageHeapUsedBytes": {
+          "median": 10000000,
+          "p95": 10000000
+        },
+        "serverRssBytes": {
+          "median": 90112000,
+          "p95": 90112000
+        }
+      }
+    },
+    "eq-96-5-batch-28": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 198.6,
+        "p95Ms": 198.6
+      },
+      "initialization": {
+        "medianMs": 100.3,
+        "p95Ms": 100.3
+      },
+      "solve": {
+        "medianMs": 11600.6,
+        "p95Ms": 11600.6
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.2,
+        "p95Ms": 200.2
+      },
+      "fullPostToken": {
+        "medianMs": 12100.8,
+        "p95Ms": 12100.8
+      },
+      "serverVerify": {
+        "medianMs": 191.42,
+        "p95Ms": 191.42
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 57212928,
+          "p95": 57212928
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 90464256,
+          "p95": 90464256
+        }
+      }
+    },
+    "eq-96-5-batch-29": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 290.2,
+        "p95Ms": 290.2
+      },
+      "initialization": {
+        "medianMs": 99,
+        "p95Ms": 99
+      },
+      "solve": {
+        "medianMs": 7100.4,
+        "p95Ms": 7100.4
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.6,
+        "p95Ms": 200.6
+      },
+      "fullPostToken": {
+        "medianMs": 7691.7,
+        "p95Ms": 7691.7
+      },
+      "serverVerify": {
+        "medianMs": 197.32,
+        "p95Ms": 197.32
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 45154304,
+          "p95": 45154304
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 91512832,
+          "p95": 91512832
+        }
+      }
+    },
+    "eq-96-5-batch-30": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 195.1,
+        "p95Ms": 195.1
+      },
+      "initialization": {
+        "medianMs": 98.6,
+        "p95Ms": 98.6
+      },
+      "solve": {
+        "medianMs": 11895.9,
+        "p95Ms": 11895.9
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 103.6,
+        "p95Ms": 103.6
+      },
+      "fullPostToken": {
+        "medianMs": 12294.3,
+        "p95Ms": 12294.3
+      },
+      "serverVerify": {
+        "medianMs": 100.26,
+        "p95Ms": 100.26
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 56360960,
+          "p95": 56360960
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 91512832,
+          "p95": 91512832
+        }
+      }
+    },
+    "eq-96-5-batch-31": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 199.4,
+        "p95Ms": 199.4
+      },
+      "initialization": {
+        "medianMs": 97.3,
+        "p95Ms": 97.3
+      },
+      "solve": {
+        "medianMs": 7102.8,
+        "p95Ms": 7102.8
+      },
+      "postToken": {
+        "medianMs": 95.6,
+        "p95Ms": 95.6
+      },
+      "verifyResponseParse": {
+        "medianMs": 103.3,
+        "p95Ms": 103.3
+      },
+      "fullPostToken": {
+        "medianMs": 7599.3,
+        "p95Ms": 7599.3
+      },
+      "serverVerify": {
+        "medianMs": 100.18,
+        "p95Ms": 100.18
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 40370176,
+          "p95": 40370176
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 92823552,
+          "p95": 92823552
+        }
+      }
+    },
+    "eq-90-5": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 196.1,
+        "p95Ms": 196.1
+      },
+      "initialization": {
+        "medianMs": 98.8,
+        "p95Ms": 98.8
+      },
+      "solve": {
+        "medianMs": 3399.5,
+        "p95Ms": 3399.5
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 201.3,
+        "p95Ms": 201.3
+      },
+      "fullPostToken": {
+        "medianMs": 3896.7,
+        "p95Ms": 3896.7
+      },
+      "serverVerify": {
+        "medianMs": 99.95,
+        "p95Ms": 99.95
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 31129600,
+          "p95": 31129600
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 92954624,
+          "p95": 92954624
+        }
+      }
+    },
+    "eq-84-5": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 289.9,
+        "p95Ms": 289.9
+      },
+      "initialization": {
+        "medianMs": 99.7,
+        "p95Ms": 99.7
+      },
+      "solve": {
+        "medianMs": 1506.8,
+        "p95Ms": 1506.8
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 394.4,
+        "p95Ms": 394.4
+      },
+      "fullPostToken": {
+        "medianMs": 2292.6,
+        "p95Ms": 2292.6
+      },
+      "serverVerify": {
+        "medianMs": 193.01,
+        "p95Ms": 193.01
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 9699328,
+          "p95": 9699328
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 94658560,
+          "p95": 94658560
+        }
+      }
+    },
+    "eq-102-5": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 197.6,
+        "p95Ms": 197.6
+      },
+      "initialization": {
+        "medianMs": 96.8,
+        "p95Ms": 96.8
+      },
+      "solve": {
+        "medianMs": 11298.3,
+        "p95Ms": 11298.3
+      },
+      "postToken": {
+        "medianMs": 0.3,
+        "p95Ms": 0.3
+      },
+      "verifyResponseParse": {
+        "medianMs": 200.2,
+        "p95Ms": 200.2
+      },
+      "fullPostToken": {
+        "medianMs": 11794.1,
+        "p95Ms": 11794.1
+      },
+      "serverVerify": {
+        "medianMs": 100.44,
+        "p95Ms": 100.44
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 45809664,
+          "p95": 45809664
+        },
+        "pageHeapUsedBytes": {
+          "median": 10000000,
+          "p95": 10000000
+        },
+        "serverRssBytes": {
+          "median": 95707136,
+          "p95": 95707136
+        }
+      }
+    },
+    "eq-28-3": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 199.4,
+        "p95Ms": 199.4
+      },
+      "initialization": {
+        "medianMs": 97.1,
+        "p95Ms": 97.1
+      },
+      "solve": {
+        "medianMs": 2.2,
+        "p95Ms": 2.2
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 197,
+        "p95Ms": 197
+      },
+      "fullPostToken": {
+        "medianMs": 592.2,
+        "p95Ms": 592.2
+      },
+      "serverVerify": {
+        "medianMs": 100.7,
+        "p95Ms": 100.7
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 1179648,
+          "p95": 1179648
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 95707136,
+          "p95": 95707136
+        }
+      }
+    },
+    "eq-112-6": {
+      "samples": 1,
+      "success": 1,
+      "expiry": 0,
+      "fatal": 0,
+      "acquisition": {
+        "medianMs": 105.6,
+        "p95Ms": 105.6
+      },
+      "initialization": {
+        "medianMs": 97.3,
+        "p95Ms": 97.3
+      },
+      "solve": {
+        "medianMs": 10302,
+        "p95Ms": 10302
+      },
+      "postToken": {
+        "medianMs": 0.2,
+        "p95Ms": 0.2
+      },
+      "verifyResponseParse": {
+        "medianMs": 294.5,
+        "p95Ms": 294.5
+      },
+      "fullPostToken": {
+        "medianMs": 10800.6,
+        "p95Ms": 10800.6
+      },
+      "serverVerify": {
+        "medianMs": 193.69,
+        "p95Ms": 193.69
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": {
+          "median": 79757312,
+          "p95": 79757312
+        },
+        "pageHeapUsedBytes": {
+          "median": null,
+          "p95": null
+        },
+        "serverRssBytes": {
+          "median": 95707136,
+          "p95": 95707136
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-16",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-16",
+        "case": "eq-96-5-batch-16",
+        "deterministic": true,
+        "seedB64": "C26lqDPVl_H4JJJyintGCOnhVMPB7rL0wFI49KKeSEM",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjE2LjQwMDAwMDAwMDAuSVNJakpDVW1KeWdwS2lzc0xTNHZNQS45Ni41LjEuNE1RS2VlMWdSeXBEVnFHY0ZXVW93NTFvd1dhU2toaGJzVlU2ZVIxbHRwMA",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+        "proofB64": "AAAZMQABljIAACgmAAGbtwAAJQgAALlbAAF8FQAB-O0AACiCAAA5YAAASxcAASnCAACwTAAB3c0AANLdAAEDyQAAaCwAAUIOAACy3QABpyEAAII8AAGpswABW7sAAWvPAADdsAABU7QAAS4dAAGiIAABDiEAAUtYAAEYpwAB0zA",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 1,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 205.1,
+        "initializationMs": 293,
+        "solveMs": 13404.9,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 396.7,
+        "fullPostTokenMs": 14301.2,
+        "serverVerifyMs": 299.47,
+        "totalMs": 14301.2
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 60555264,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 86413312
+      },
+      "assets": {
+        "condition": "cold",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 5.77
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 93.39
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 3.32
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 99.34
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.03
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 205.09999999403954,
+        "initDoneMs": 498.09999999403954,
+        "solveSentMs": 498.5,
+        "solveDoneMs": 13903.39999999106,
+        "solveStatus": "solved",
+        "verifySentMs": 13903.70000000298,
+        "verifyResponseParsedMs": 14300.39999999106,
+        "glueCompletedMs": 14301.20000000298,
+        "maxWasmMemoryBytes": 60555264
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-17",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-17",
+        "case": "eq-96-5-batch-17",
+        "deterministic": true,
+        "seedB64": "DjK9U9UsI6zQXHhu9oOMVL1-zZ5kpZRfeYlrIXbc5Ho",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjE3LjQwMDAwMDAwMDAuTWpNME5UWTNPRGs2T3p3OVBqOUFRUS45Ni41LjEud3ZMX2U5a2xiZFRDNDQ2bkxndTE2TjI5RjZzZ2pQcjU0RzBSRDJSak5xOA",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+        "proofB64": "AAAARQAAslAAARyjAAEdYwAAQ1kAAIcsAAEZcgABpP4AAL8pAAHlVwABbCoAAeApAAFTIAABfjoAAYFbAAGUswAAFJIAAJhlAABTJQABEEIAAE-VAAHHhQAAzFsAAZiQAAB_bwABpxkAAM-lAAHEwAAAicgAATZHAAErOwABpPY",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 1,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 288.6,
+        "initializationMs": 4.8,
+        "solveMs": 12094.3,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 201.4,
+        "fullPostTokenMs": 12590.3,
+        "serverVerifyMs": 101.57,
+        "totalMs": 12590.3
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 60555264,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 87080960
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.56
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 3.91
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.82
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.54
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 288.59999999403954,
+        "initDoneMs": 293.3999999910593,
+        "solveSentMs": 293.59999999403954,
+        "solveDoneMs": 12387.89999999106,
+        "solveStatus": "solved",
+        "verifySentMs": 12388.199999988079,
+        "verifyResponseParsedMs": 12589.59999999404,
+        "glueCompletedMs": 12590.29999999702,
+        "maxWasmMemoryBytes": 60555264
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-18",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-18",
+        "case": "eq-96-5-batch-18",
+        "deterministic": true,
+        "seedB64": "5tlFxNu7886Rks7PiMR9ffkh4zrrb2VlNMlF_P4PRb4",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjE4LjQwMDAwMDAwMDAuUTBSRlJrZElTVXBMVEUxT1QxQlJVZy45Ni41LjEucDB5YzJDVFh4WEpWSWhRNmttUnZQZ1lzZnhIV0NwazIwWDROZ3hQeUQwQQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAdAQABNmwAACh_AAEKsgAAoQsAASLmAACkigAArJ0AAB27AAE61QAA8TkAAVzqAACl0QAA_P0AAbW1AAHzVAAAMmEAAUpzAADtowAA_W0AAJX1AAF78QABBqMAAXi7AADQBgAB9WsAAYdkAAHLRQAA14YAAXmmAAE6iAAB-dQ",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 199.6,
+        "initializationMs": 94.1,
+        "solveMs": 7197.2,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 200.9,
+        "fullPostTokenMs": 7692.9,
+        "serverVerifyMs": 197.6,
+        "totalMs": 7692.9
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 60555264,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 87736320
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 91.28
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 3.89
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.34
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.59
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 199.6000000089407,
+        "initDoneMs": 293.70000000298023,
+        "solveSentMs": 293.90000000596046,
+        "solveDoneMs": 7491.100000008941,
+        "solveStatus": "solved",
+        "verifySentMs": 7491.4000000059605,
+        "verifyResponseParsedMs": 7692.29999999702,
+        "glueCompletedMs": 7692.9000000059605,
+        "maxWasmMemoryBytes": 60555264
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-19",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-19",
+        "case": "eq-96-5-batch-19",
+        "deterministic": true,
+        "seedB64": "bw0LCoK5tSg9jR3ogyUNRs9pTVDCN5kp27q1Q6xDTjU",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjE5LjQwMDAwMDAwMDAuVkZWV1YxaFpXbHRjWFY1ZllHRmlZdy45Ni41LjEuRzVaZGtsVUxVejZ1OU1VdHBmZGVtdnJmWFVIc2RRM3JHUElVdEFzcHBKQQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAARCgAAQQAAATFTAAGmKAAAx5wAAbWfAAE6hQABkA4AADC3AAGcaAAA8cgAAR59AABfSwABrcEAAYjCAAH3KwAAHg4AAbczAAFFhgABTKMAADKmAADU_wABUuwAAc23AAA2ugAB5AIAAUA4AAGcYwAAek8AAIamAAB_YQABu4c",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 196.3,
+        "initializationMs": 100.2,
+        "solveMs": 7098.3,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 201.4,
+        "fullPostTokenMs": 7597.3,
+        "serverVerifyMs": 197.74,
+        "totalMs": 7597.3
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 39911424,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 87998464
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 94.28
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 3.77
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.72
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.84
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.03
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 196.29999999701977,
+        "initDoneMs": 296.5,
+        "solveSentMs": 296.79999999701977,
+        "solveDoneMs": 7395.0999999940395,
+        "solveStatus": "solved",
+        "verifySentMs": 7395.399999991059,
+        "verifyResponseParsedMs": 7596.79999999702,
+        "glueCompletedMs": 7597.29999999702,
+        "maxWasmMemoryBytes": 39911424
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-20",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-20",
+        "case": "eq-96-5-batch-20",
+        "deterministic": true,
+        "seedB64": "LtUEfZAFcx5668GLhxyRcgEDH9oWjGcQExo0JEudTDQ",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjIwLjQwMDAwMDAwMDAuWldabmFHbHFhMnh0Ym05d2NYSnpkQS45Ni41LjEuT2VwSXRhQWU0UGpmczgwU1ktblNkb2lydGpneXhhUUo2MEpjMGJXMkEyWQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAABTAABOUgAAGW9AACeHgAADQAAAULrAAGqUgAByOcAAFg7AACozQAB7E8AAfO_AADSdwABAMMAAU61AAHflQAAGL8AAEL4AAEoJAAB6xUAAOTjAAD-cQABJBEAATepAABMTAABj90AARExAAHJkAAAlZMAAdJFAAEzRQABmys",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 197.2,
+        "initializationMs": 100.4,
+        "solveMs": 7098.8,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 299.7,
+        "fullPostTokenMs": 7697.4,
+        "serverVerifyMs": 197.59,
+        "totalMs": 7697.4
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 39780352,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 88784896
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.46
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 92.28
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.86
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 96.63
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 197.20000000298023,
+        "initDoneMs": 297.59999999403954,
+        "solveSentMs": 297.90000000596046,
+        "solveDoneMs": 7396.70000000298,
+        "solveStatus": "solved",
+        "verifySentMs": 7396.9000000059605,
+        "verifyResponseParsedMs": 7696.5999999940395,
+        "glueCompletedMs": 7697.4000000059605,
+        "maxWasmMemoryBytes": 39780352
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-21",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-21",
+        "case": "eq-96-5-batch-21",
+        "deterministic": true,
+        "seedB64": "mBlsY0iGPDRy9vS9fP_2kzmFm54bmx5cLclYijDDJVM",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjIxLjQwMDAwMDAwMDAuZG5kNGVYcDdmSDEtZjRDQmdvT0VoUS45Ni41LjEuUXBjZXJRWFRfOVJHRDdZSUViSmQ0dDl3TkFqLXpmTzRfTi1PMTh4ZEx0NA",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAACoAAAxMwAAH9DAAHGEwAAGRoAAPkqAADldwABslYAABXjAAE1awABaY0AAYFXAABqHgABYyYAAI8dAACkSQAAEooAALRXAAA9UAAAVQUAAR5YAAF_tQABZEIAAaluAABeqwAA61UAAKJKAAGbyQABSpMAAerFAAFltQABkAY",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 197.6,
+        "initializationMs": 97.9,
+        "solveMs": 7201.5,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 199.1,
+        "fullPostTokenMs": 7697.3,
+        "serverVerifyMs": 100.73,
+        "totalMs": 7697.3
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 60555264,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 89440256
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 92.53
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 95.86
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.79
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 93.92
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 197.59999999403954,
+        "initDoneMs": 295.5,
+        "solveSentMs": 295.70000000298023,
+        "solveDoneMs": 7497.20000000298,
+        "solveStatus": "solved",
+        "verifySentMs": 7497.5,
+        "verifyResponseParsedMs": 7696.5999999940395,
+        "glueCompletedMs": 7697.29999999702,
+        "maxWasmMemoryBytes": 60555264
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-22",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-22",
+        "case": "eq-96-5-batch-22",
+        "deterministic": true,
+        "seedB64": "AZc6V3YnfqTWYbJsnJqET-8H6XNlgi1U8-K_JwoWUsU",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjIyLjQwMDAwMDAwMDAuaDRpSmlvdU1qWTZQa0pHU2s1U1ZsZy45Ni41LjEuZHFXbVlteF95SmVEZmJzcXQyUkdmU0NMSFN2TFdYaHJmNlZuSGNqdGZxVQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAJHgAAyRQAAEVoAAES3QAAUeIAAKMNAAFOPgABesMAACifAAEGUAAAursAAbJkAAFy9AABmnwAAYfUAAH8CAAAGDMAAMmAAAC9RgABBRAAAH7AAACM7gABXb4AAcVAAAA1AAABxdkAAMTXAAEAYQAAdjIAAYafAAD-5wABtmc",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 288.8,
+        "initializationMs": 4.9,
+        "solveMs": 7294.4,
+        "postTokenMs": 0.4,
+        "verifyResponseParseMs": 201.7,
+        "fullPostTokenMs": 7791,
+        "serverVerifyMs": 100.5,
+        "totalMs": 7791
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 39583744,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 89923584
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.03
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 3.99
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 91.35
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.72
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 288.79999999701977,
+        "initDoneMs": 293.70000000298023,
+        "solveSentMs": 293.8999999910593,
+        "solveDoneMs": 7588.29999999702,
+        "solveStatus": "solved",
+        "verifySentMs": 7588.70000000298,
+        "verifyResponseParsedMs": 7790.399999991059,
+        "glueCompletedMs": 7791,
+        "maxWasmMemoryBytes": 39583744
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-23",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-23",
+        "case": "eq-96-5-batch-23",
+        "deterministic": true,
+        "seedB64": "nAdbE5btubf8jtnebnNfGOcB30FcQRqC_J7F5pEpzQk",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjIzLjQwMDAwMDAwMDAubUptYW01eWRucC1nb2FLanBLV21wdy45Ni41LjEuSHpjSjkyOC1HS195ZGU3NDFwTm54OEdrVDROTGJNb09ZbzFvM1ZaWEJndw",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAASpAAARXUAAI5PAADPMQAAQnUAAP_dAACiXQAB94AAAFuEAAEH3QAA8NoAAWY3AABt6wABl-UAAWl1AAHZTQAALKQAAFc3AAHBWAAB3AAAAXtBAAHzLgABlWUAAbR5AABBLgABLX0AAMtXAADqXgAApBsAAZmDAAFXOgAB65Q",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 198.8,
+        "initializationMs": 189.1,
+        "solveMs": 6599.4,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 202.1,
+        "fullPostTokenMs": 7190.6,
+        "serverVerifyMs": 198.53,
+        "totalMs": 7190.6
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 40960000,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 90185728
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.61
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 4.24
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 90.83
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 1.31
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 198.79999999701977,
+        "initDoneMs": 387.90000000596046,
+        "solveSentMs": 388.20000000298023,
+        "solveDoneMs": 6987.600000008941,
+        "solveStatus": "solved",
+        "verifySentMs": 6987.9000000059605,
+        "verifyResponseParsedMs": 7190,
+        "glueCompletedMs": 7190.600000008941,
+        "maxWasmMemoryBytes": 40960000
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-24",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-24",
+        "case": "eq-96-5-batch-24",
+        "deterministic": true,
+        "seedB64": "KYKqlCeUPZU6s8cR5SDTiBizljwQcvMXcqB1YMHdFfs",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjI0LjQwMDAwMDAwMDAucWFxcnJLMnVyN0N4c3JPMHRiYTN1QS45Ni41LjEuVERZaDd2VDkxeVIwbGIzUjRIQjVGOERseGdORFB2OXFPdWE5b0ZzWnJCUQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAPKQAAqHUAAM6dAAGvCgABJxEAAejZAAG5RwABzl8AAJMVAAGTGAABs1EAAculAADLrQABzjcAATTYAAFowgAAFAYAAQ_4AAEiiQAB5hIAAFEhAACXGgABtZIAAf5bAABh7AAAZMkAAMiRAAH6bwAAaowAAcGFAAFkQgABaik",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 195.4,
+        "initializationMs": 97.2,
+        "solveMs": 6798.1,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 201.6,
+        "fullPostTokenMs": 7293.4,
+        "serverVerifyMs": 198.34,
+        "totalMs": 7293.4
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 60555264,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 90972160
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 1.25
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 94.68
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.83
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.62
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 195.3999999910593,
+        "initDoneMs": 292.59999999403954,
+        "solveSentMs": 292.79999999701977,
+        "solveDoneMs": 7090.899999991059,
+        "solveStatus": "solved",
+        "verifySentMs": 7091.199999988079,
+        "verifyResponseParsedMs": 7292.79999999702,
+        "glueCompletedMs": 7293.399999991059,
+        "maxWasmMemoryBytes": 60555264
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-25",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-25",
+        "case": "eq-96-5-batch-25",
+        "deterministic": true,
+        "seedB64": "4596tuXFgUygUGGeqNe0G_5kdjAPAzHcH2LiepeVWWY",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjI1LjQwMDAwMDAwMDAudXJ1OHZiNl93TUhDdzhURnhzZkl5US45Ni41LjEuc1Z2bFhBdzRoWjRlN2EwNXJGZ09BcXpIVFNkY1NqX09CdlpYWU1UZGxNZw",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAUBgAB2qkAAIqBAAHEpQAA2OQAAboTAAE31wABRtIAAEKLAADQ6AABV2UAAac2AABk6gAA_esAASQHAAEzYAAAHy8AAHNdAABF2AABKo8AAHbTAAH9KgABE0EAAc4qAAAmIQAA2WYAAL6kAAFWIwAAwEQAAaq4AAECgAABylQ",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 196.4,
+        "initializationMs": 100.6,
+        "solveMs": 6798.7,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 200.6,
+        "fullPostTokenMs": 7297.5,
+        "serverVerifyMs": 197.2,
+        "totalMs": 7297.5
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 40632320,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 90542080
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.82
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 4.04
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 89.69
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 97
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.02
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 196.40000000596046,
+        "initDoneMs": 297,
+        "solveSentMs": 297.30000001192093,
+        "solveDoneMs": 7096,
+        "solveStatus": "solved",
+        "verifySentMs": 7096.300000011921,
+        "verifyResponseParsedMs": 7296.9000000059605,
+        "glueCompletedMs": 7297.5,
+        "maxWasmMemoryBytes": 40632320
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-26",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-26",
+        "case": "eq-96-5-batch-26",
+        "deterministic": true,
+        "seedB64": "pqAZj729oRAU5Qcv3KvMcNYfJILnq939Jbq9wMCmRyM",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjI2LjQwMDAwMDAwMDAueTh6TnpzX1EwZExUMU5YVzE5aloyZy45Ni41LjEuQ3ZFcGJTZGZjUDRQZGY4dmVCQ3lLbjJHbU1FaktpRDN3RXJKak1TbXN1Yw",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+        "proofB64": "AAAkAQAAfUcAAONMAAFeMAAASXQAAciRAABYRQAA2nwAAGl4AAF-hgAAfDQAAQhBAACslwABeFkAAO5PAAGZdgAATJsAASxFAABWxwABzUEAAFLrAAFexwABrQsAAf9YAABxlgABHmEAAbe6AAHanQAAxP4AARFhAAEusgAB1SE",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 1,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 108.2,
+        "initializationMs": 95.1,
+        "solveMs": 12296.8,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 200.8,
+        "fullPostTokenMs": 12702,
+        "serverVerifyMs": 101.13,
+        "totalMs": 12702
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 40304640,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 90312704
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.66
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 3.99
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 91.83
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 1.19
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 108.20000000298023,
+        "initDoneMs": 203.29999999701977,
+        "solveSentMs": 203.5,
+        "solveDoneMs": 12500.29999999702,
+        "solveStatus": "solved",
+        "verifySentMs": 12500.5,
+        "verifyResponseParsedMs": 12701.29999999702,
+        "glueCompletedMs": 12702,
+        "maxWasmMemoryBytes": 40304640
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-27",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-27",
+        "case": "eq-96-5-batch-27",
+        "deterministic": true,
+        "seedB64": "2DBzvAjB4-GvQ_1zmyKL7eWi-gACwxrqqtK0Ks8cB6Y",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjI3LjQwMDAwMDAwMDAuM04zZTMtRGg0dVBrNWVibjZPbnE2dy45Ni41LjEuU1pmU3Z3SWxRczBVaTVoUm5xa2R3Zl9ra2dNa1pVMkYxWkhWbWlyMVcyWQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAABlAAA5ocAAAMhAAF16AAAGnAAAcY0AAEY8AABXf4AAEiJAAEzhQAAhwAAAeJ5AABWGwABJpIAAKcfAADh3AAAFLMAAX-SAAGYYQAB_mwAAN0IAAG_SgAA5lgAARFTAAAtTwAAb7gAATecAAGNMgAA3LMAAZSQAADuSwABSj0",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 195.8,
+        "initializationMs": 97.7,
+        "solveMs": 6797.9,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 103.3,
+        "fullPostTokenMs": 7196,
+        "serverVerifyMs": 100.46,
+        "totalMs": 7196
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 39518208,
+        "pageHeapUsedBytes": 10000000,
+        "pageHeapTotalBytes": 10000000,
+        "serverRssBytes": 90112000
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.66
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 93.22
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.72
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.73
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.02
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 0.03
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 195.79999999701977,
+        "initDoneMs": 293.5,
+        "solveSentMs": 293.79999999701977,
+        "solveDoneMs": 7091.70000000298,
+        "solveStatus": "solved",
+        "verifySentMs": 7091.899999991059,
+        "verifyResponseParsedMs": 7195.20000000298,
+        "glueCompletedMs": 7196,
+        "maxWasmMemoryBytes": 39518208
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-28",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-28",
+        "case": "eq-96-5-batch-28",
+        "deterministic": true,
+        "seedB64": "MHDVlI25VknP6OoLyFAFBoJnM2Irap22s38_0D2IAC4",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjI4LjQwMDAwMDAwMDAuN2U3djhQSHk4X1QxOXZmNC1mcjdfQS45Ni41LjEuUW9lTjlnX1BiMjhuTFJYR3NIenhmX3VxTUlBcXl3TzdWd2VMdkQwMkNHaw",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+        "proofB64": "AAAhfQAASrYAAUCHAAGCjAAAyfcAAVV7AAD-eAABRKwAAD_XAAERvQAAmE0AAS41AACr-QABQXoAATCiAAHvvgAAIb8AAcdWAABAcwAAfsAAAFEuAAHitgAAVLsAAGZpAAAsVAAA6MUAAJKVAAEfdAAAg6gAANIxAAGC9QABrm0",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 1,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 198.6,
+        "initializationMs": 100.3,
+        "solveMs": 11600.6,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 200.2,
+        "fullPostTokenMs": 12100.8,
+        "serverVerifyMs": 191.42,
+        "totalMs": 12100.8
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 57212928,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 90464256
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.53
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 4.25
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 91.52
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.66
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 198.6000000089407,
+        "initDoneMs": 298.90000000596046,
+        "solveSentMs": 299.20000000298023,
+        "solveDoneMs": 11899.79999999702,
+        "solveStatus": "solved",
+        "verifySentMs": 11900,
+        "verifyResponseParsedMs": 12100.20000000298,
+        "glueCompletedMs": 12100.79999999702,
+        "maxWasmMemoryBytes": 57212928
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-29",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-29",
+        "case": "eq-96-5-batch-29",
+        "deterministic": true,
+        "seedB64": "LbEV9mAGMX2bC-RnmEpGLXOZ5C9tfC7GkIGZfc9Ax3g",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjI5LjQwMDAwMDAwMDAuX3Y4QUFRSURCQVVHQndnSkNnc01EUS45Ni41LjEuWnFsN2RHWW1BOG5VdmxiTU13enRDbjJpeWpDVGVrdUJSVWpYenlzUGlxZw",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAO7gAAt0gAAICcAAEfMAAAxjEAAS4FAAFHZgAB-WAAAD1TAAGr6AAA9wkAAb8WAABgiwABb_kAAOO4AAFpwwAAMssAAaunAAEjHQAB8-0AAI8iAAClWAABTKAAAZXxAAB3GQAByLAAARVnAAGv7wAA7noAAUgUAAELXAABxQI",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 290.2,
+        "initializationMs": 99,
+        "solveMs": 7100.4,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 200.6,
+        "fullPostTokenMs": 7691.7,
+        "serverVerifyMs": 197.32,
+        "totalMs": 7691.7
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 45154304,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 91512832
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 1.77
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 4.62
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 91.84
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 1.15
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.03
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 290.20000000298023,
+        "initDoneMs": 389.20000000298023,
+        "solveSentMs": 389.6000000089407,
+        "solveDoneMs": 7490,
+        "solveStatus": "solved",
+        "verifySentMs": 7490.300000011921,
+        "verifyResponseParsedMs": 7690.9000000059605,
+        "glueCompletedMs": 7691.70000000298,
+        "maxWasmMemoryBytes": 45154304
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-30",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-30",
+        "case": "eq-96-5-batch-30",
+        "deterministic": true,
+        "seedB64": "sS01puOqv6fhB2xsYoTm9fsLfkwTGCZekzSNjlUA8Y4",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjMwLjQwMDAwMDAwMDAuRHhBUkVoTVVGUllYR0JrYUd4d2RIZy45Ni41LjEubVFiOFF0XzZrTXNRdVpRaFBybGE1WE9yT0tfN0NQNDREM0VhYWpzUDdlUQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+        "proofB64": "AAAOZAABIgEAAPMWAAH3hAAAKhoAAbuIAAA4pwAAZZ8AAFnbAAE6wwAA3Z8AASByAABrUAABl2QAAO2jAAFX5gAAE0EAAalLAADVPgABHHoAAB4LAAFFDQABg4IAAeEzAAEU4QABQLcAAeRTAAHqwwABSDoAAcPtAAGq9QAB2wA",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 1,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 195.1,
+        "initializationMs": 98.6,
+        "solveMs": 11895.9,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 103.6,
+        "fullPostTokenMs": 12294.3,
+        "serverVerifyMs": 100.26,
+        "totalMs": 12294.3
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 56360960,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 91512832
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.5
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 3.64
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.76
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 1.11
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 195.09999999403954,
+        "initDoneMs": 293.70000000298023,
+        "solveSentMs": 294,
+        "solveDoneMs": 12189.90000000596,
+        "solveStatus": "solved",
+        "verifySentMs": 12190.20000000298,
+        "verifyResponseParsedMs": 12293.79999999702,
+        "glueCompletedMs": 12294.29999999702,
+        "maxWasmMemoryBytes": 56360960
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-96-5-batch-31",
+      "n": 96,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-96-5-batch-31",
+        "case": "eq-96-5-batch-31",
+        "deterministic": true,
+        "seedB64": "LxEEry-fSmIaZbsXY4O4bEcOMMZNPS9l9BIUq4Cgdj4",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjMxLjQwMDAwMDAwMDAuSUNFaUl5UWxKaWNvS1NvckxDMHVMdy45Ni41LjEuMi1qT09sdjgtZkZhRUhsOFZ3NW94blVnT0JtNU1sMzY3WUFEYzVQTlpzRQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAD2AAAHdkAALkZAADSgQAAMboAAJjGAADllgAB5woAAEQ4AADoMwAAXEYAAb0XAABKfgABuQUAAK0xAAD8PQAADHsAAUApAACt2wAB9TcAAEdnAACREgAAkjcAAe8WAABZjQABxB8AAHdpAAGw6wAAfMwAASSMAAFayAABcZE",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 199.4,
+        "initializationMs": 97.3,
+        "solveMs": 7102.8,
+        "postTokenMs": 95.6,
+        "verifyResponseParseMs": 103.3,
+        "fullPostTokenMs": 7599.3,
+        "serverVerifyMs": 100.18,
+        "totalMs": 7599.3
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 40370176,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 92823552
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 94.7
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 95.23
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.74
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 93.48
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 199.3999999910593,
+        "initDoneMs": 296.70000000298023,
+        "solveSentMs": 296.8999999910593,
+        "solveDoneMs": 7399.70000000298,
+        "solveStatus": "solved",
+        "verifySentMs": 7495.29999999702,
+        "verifyResponseParsedMs": 7598.5999999940395,
+        "glueCompletedMs": 7599.29999999702,
+        "maxWasmMemoryBytes": 40370176
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-90-5",
+      "n": 90,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-90-5",
+        "case": "eq-90-5",
+        "deterministic": true,
+        "seedB64": "f5kkIZyb9ngyBr7OZgtMaXmR1v_KgfhnDxOifyyliTU",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjEwLjQwMDAwMDAwMDAudTd5OXZyX0F3Y0xEeE1YR3g4akp5Zy45MC41LjEuc3U0WTgtN2pfd1I1SGJnbURDMXJLaTBYbld2TjQxQzhSRXowNVQ3dzF3dw",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAG0wAAeHYAABOoAAA2VAAAH4kAADRmAACkmgAA6g8AABnqAAD3oAAAibMAAM4SAAAiIQAARrkAAFhgAACldgAABzAAAIecAAB6GwAAiWAAABhrAAAkDQAAS9EAALbUAAAgaQAApEcAAFcqAACuQQAAP4kAAPiJAACGxQAAxc0",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 196.1,
+        "initializationMs": 98.8,
+        "solveMs": 3399.5,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 201.3,
+        "fullPostTokenMs": 3896.7,
+        "serverVerifyMs": 99.95,
+        "totalMs": 3896.7
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 31129600,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 92954624
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.41
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 93.88
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.12
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 1.09
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 196.09999999403954,
+        "initDoneMs": 294.8999999910593,
+        "solveSentMs": 295.09999999403954,
+        "solveDoneMs": 3694.5999999940395,
+        "solveStatus": "solved",
+        "verifySentMs": 3694.7999999970198,
+        "verifyResponseParsedMs": 3896.0999999940395,
+        "glueCompletedMs": 3896.699999988079,
+        "maxWasmMemoryBytes": 31129600
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-84-5",
+      "n": 84,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-84-5",
+        "case": "eq-84-5",
+        "deterministic": true,
+        "seedB64": "q1_Cxw2rroq1CM9TuHpCDnGB85A1ULz1_T0kCkzSH18",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjExLjQwMDAwMDAwMDAuek0zT3o5RFIwdFBVMWRiWDJObmEydy44NC41LjEuaEExSWRRUW5yM3I2SUZNTUFxeWcxWWlIWnc1MzdNNTB6NFdYbWdpWm9UYw",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAL-wAAPnQAACt1AAB01QAAFIQAAFnVAAAltQAAW4UAABUXAABAZQAAXEMAAG61AAAVYQAANWYAABviAABVmQAADlEAABBQAAAn6wAAUP0AAC4nAAAy_QAAe5cAAH9_AAAYWQAAdsIAAEqSAAB54wAARAQAAFfBAABlMwAAev4",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 289.9,
+        "initializationMs": 99.7,
+        "solveMs": 1506.8,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 394.4,
+        "fullPostTokenMs": 2292.6,
+        "serverVerifyMs": 193.01,
+        "totalMs": 2292.6
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 9699328,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 94658560
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 1.88
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 4.22
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.79
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.63
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 289.90000000596046,
+        "initDoneMs": 389.6000000089407,
+        "solveSentMs": 389.90000000596046,
+        "solveDoneMs": 1896.7000000029802,
+        "solveStatus": "solved",
+        "verifySentMs": 1896.9000000059605,
+        "verifyResponseParsedMs": 2291.2999999970198,
+        "glueCompletedMs": 2292.6000000089407,
+        "maxWasmMemoryBytes": 9699328
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-102-5",
+      "n": 102,
+      "k": 5,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-102-5",
+        "case": "eq-102-5",
+        "deterministic": true,
+        "seedB64": "IeVtkvRrm32FwfTYso31o7tUpkaCqgSw8YlH5pDmJuA",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjEyLjQwMDAwMDAwMDAuM2Q3ZjRPSGk0LVRsNXVmbzZlcnI3QS4xMDIuNS4xLllsckhhMWl1MmlyZHAwWFlIc2JJNVBsb05VNkg2Q3hUVElkYmVad18zbE0",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAA4gAAKT4AARI_AAFipQAABDIAARVQAAIOTQACTycAAApPAAJd7AAA5WUAAgMgAAH4TQACpbYAAqR5AAPCQgAABtwAAhT5AAAVngAAemMAAA9yAAMJyQAB3NAAA13tAABIKwACEMQAAKIrAANLQAAB6PcAAmrYAALmYQADQX4",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 197.6,
+        "initializationMs": 96.8,
+        "solveMs": 11298.3,
+        "postTokenMs": 0.3,
+        "verifyResponseParseMs": 200.2,
+        "fullPostTokenMs": 11794.1,
+        "serverVerifyMs": 100.44,
+        "totalMs": 11794.1
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 45809664,
+        "pageHeapUsedBytes": 10000000,
+        "pageHeapTotalBytes": 10000000,
+        "serverRssBytes": 95707136
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.8
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 92.9
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.85
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.58
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.02
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 0.02
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": null
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 197.59999999403954,
+        "initDoneMs": 294.40000000596046,
+        "solveSentMs": 294.59999999403954,
+        "solveDoneMs": 11592.90000000596,
+        "solveStatus": "solved",
+        "verifySentMs": 11593.20000000298,
+        "verifyResponseParsedMs": 11793.40000000596,
+        "glueCompletedMs": 11794.09999999404,
+        "maxWasmMemoryBytes": 45809664
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-28-3",
+      "n": 28,
+      "k": 3,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-28-3",
+        "case": "eq-28-3",
+        "deterministic": true,
+        "seedB64": "ECMA_4-4YGQ-m-31D6TjDzoBy7Z-Nm6nZzACS-PTmzU",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjEzLjQwMDAwMDAwMDAuN3VfdzhmTHo5UFgyOV9qNS12djhfUS4yOC4zLjEuRGtKd0dvYzdYeGdYbEhIRGJJbXpaNDhUQUNVYnFVQlEta0ZjU3lSSC1oTQ",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAAAAQAAAOMAAAAMAAAAjgAAAAIAAAAbAAAANAAAAEg",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 199.4,
+        "initializationMs": 97.1,
+        "solveMs": 2.2,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 197,
+        "fullPostTokenMs": 592.2,
+        "serverVerifyMs": 100.7,
+        "totalMs": 592.2
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 1179648,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 95707136
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 93.67
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 93.87
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.8
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.68
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.02
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 199.40000000596046,
+        "initDoneMs": 296.5,
+        "solveSentMs": 296.70000000298023,
+        "solveDoneMs": 298.90000000596046,
+        "solveStatus": "solved",
+        "verifySentMs": 299.1000000089407,
+        "verifyResponseParsedMs": 496.1000000089407,
+        "glueCompletedMs": 592.2000000029802,
+        "maxWasmMemoryBytes": 1179648
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    },
+    {
+      "sample": 1,
+      "id": "eq-112-6",
+      "n": 112,
+      "k": 6,
+      "required": true,
+      "input": {
+        "route": "/calibration/eq-112-6",
+        "case": "eq-112-6",
+        "deterministic": true,
+        "seedB64": "dlyv2UYDzRQw-1TCBANn2GzqGRh_V59CSIoc9-ONZSA",
+        "nonceSequenceB64": [
+          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ]
+      },
+      "proof": {
+        "ticketB64": "NS40MDAwMDAwMTgwLjE0LjQwMDAwMDAwMDAuX3dBQkFnTUVCUVlIQ0FrS0N3d05EZy4xMTIuNi4xLl80QnZEeXhiWDNBZUpJeW9aVW55T1J5cTBjdHNVeTNueDlRMnpGTUpSTVU",
+        "pathHash": "any",
+        "nonceB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "proofB64": "AAABjAAAEF8AAI9BAADrXgAAb_oAANPdAAEtRwABSUIAACaKAACEMwAAOqkAANYHAABJpwAA2qAAAKITAAHNUwAAVIMAAMjfAAFVjQABfPcAALqLAAHA7AAA1zkAAbWgAADRBQAB-6sAAPnMAAHU3gABQn8AAbPSAAF7sAAB5vEAABwbAAFPlgAAUacAAdknAAC4GgAB0e0AASP1AAGP3QAAODEAAMICAAFRvwAB-aoAAHItAAHY1AAAiuAAASJzAAAhQgAA0oQAAHzyAAHEKAAAWrMAAQYJAAC58AAAu64AAGw0AAB3PwAAlkIAAbOzAAEALwABsycAAVIyAAHrgA",
+        "serverStatus": 200,
+        "serverResponse": {
+          "ok": true,
+          "mode": "proof",
+          "proofTtlSec": 180
+        },
+        "attempt": 0,
+        "expectedMatch": true
+      },
+      "status": "success",
+      "success": true,
+      "timings": {
+        "acquisitionMs": 105.6,
+        "initializationMs": 97.3,
+        "solveMs": 10302,
+        "postTokenMs": 0.2,
+        "verifyResponseParseMs": 294.5,
+        "fullPostTokenMs": 10800.6,
+        "serverVerifyMs": 193.69,
+        "totalMs": 10800.6
+      },
+      "memory": {
+        "wasmLinearMemoryBytes": 79757312,
+        "pageHeapUsedBytes": null,
+        "pageHeapTotalBytes": null,
+        "serverRssBytes": 95707136
+      },
+      "assets": {
+        "condition": "warm",
+        "requested": [
+          {
+            "path": "/glue.js",
+            "durationMs": 2.55
+          },
+          {
+            "path": "/esm/esm.js",
+            "durationMs": 3.93
+          },
+          {
+            "path": "/esm/solver.wasm",
+            "durationMs": 0.84
+          },
+          {
+            "path": "/esm/equihash-worker.js",
+            "durationMs": 0.69
+          },
+          {
+            "path": "/glue.js",
+            "durationMs": 0.12
+          }
+        ]
+      },
+      "worker": {
+        "startedMs": 0,
+        "tokenReadyMs": 0,
+        "initSentMs": 105.6000000089407,
+        "initDoneMs": 202.90000000596046,
+        "solveSentMs": 203.1000000089407,
+        "solveDoneMs": 10505.10000000894,
+        "solveStatus": "solved",
+        "verifySentMs": 10505.29999999702,
+        "verifyResponseParsedMs": 10799.79999999702,
+        "glueCompletedMs": 10800.60000000894,
+        "maxWasmMemoryBytes": 79757312
+      },
+      "navigationStatus": 200,
+      "navigationError": ""
+    }
+  ],
+  "acceptance": {
+    "requiredCases": [
+      "eq-96-5-batch-16",
+      "eq-96-5-batch-17",
+      "eq-96-5-batch-18",
+      "eq-96-5-batch-19",
+      "eq-96-5-batch-20",
+      "eq-96-5-batch-21",
+      "eq-96-5-batch-22",
+      "eq-96-5-batch-23",
+      "eq-96-5-batch-24",
+      "eq-96-5-batch-25",
+      "eq-96-5-batch-26",
+      "eq-96-5-batch-27",
+      "eq-96-5-batch-28",
+      "eq-96-5-batch-29",
+      "eq-96-5-batch-30",
+      "eq-96-5-batch-31",
+      "eq-90-5",
+      "eq-84-5",
+      "eq-102-5",
+      "eq-28-3",
+      "eq-112-6"
+    ],
+    "requiredFailures": [],
+    "serverVerifiableProofs": 21,
+    "nonDefaultProofs": 5,
+    "nonDefaultRequired": true,
+    "defaultRequired": true,
+    "defaultVerifierAvailable": true,
+    "defaultVerifierReason": null,
+    "deterministicFailures": []
+  }
+}

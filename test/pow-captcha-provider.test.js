@@ -52,20 +52,20 @@ const ensureGlobals = () => {
   };
 };
 
-const buildCore1FrontTestModule = async () => {
+const buildSharedTestModule = async () => {
   const { tmpDir } = await createPowRuntimeFixture({
     secret: "config-secret",
     tmpPrefix: "pow-core1-front-test-",
   });
-  const core1FrontPath = join(tmpDir, "lib", "pow", "api-core1-front.js");
-  const core1FrontSource = await readFile(core1FrontPath, "utf8");
-  const core1FrontInjected = `${core1FrontSource}\nexport const __captchaTesting = { verifyRequiredCaptchaForTicket, captchaTagV1 };\n`;
-  await writeFile(core1FrontPath, core1FrontInjected);
-  return core1FrontPath;
+  const sharedPath = join(tmpDir, "lib", "pow", "api-protocol-shared.js");
+  const sharedSource = await readFile(sharedPath, "utf8");
+  const sharedInjected = `${sharedSource}\nexport const __captchaTesting = { verifyRequiredCaptchaForTicket, captchaTagV1 };\n`;
+  await writeFile(sharedPath, sharedInjected);
+  return sharedPath;
 };
 
 const loadCaptchaTesting = async () => {
-  const modulePath = await buildCore1FrontTestModule();
+  const modulePath = await buildSharedTestModule();
   const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
   return mod.__captchaTesting;
 };
@@ -80,18 +80,19 @@ const readPowSource = async (fileName) => {
   }
 };
 
-test("cap endpoint is turnstile-only and non-atomic", async () => {
-  const source = await readPowSource("api-core1-front.js");
-  assert.match(source, /if \(needPow \|\| !needTurn \|\| config\.ATOMIC_CONSUME === true\) return S\(404\);/u);
+test("verify endpoint owns ordinary turnstile and PoW submissions", async () => {
+  const source = await readPowSource("api-engine.js");
+  assert.match(source, /handlePowVerify/u);
+  assert.doesNotMatch(source, /\/cap/u);
 });
 
 test("canonical captcha parser only accepts turnstile token", async () => {
   const sharedSource = await readPowSource("api-protocol-shared.js");
   const apiEngineSource = await readPowSource("api-engine.js");
 
-  assert.match(sharedSource, /const resolveCaptchaRequirements = \(config\) => \{\s*const needTurn = config\.turncheck === true;\s*return \{ needTurn \};\s*\};/u);
+  assert.match(sharedSource, /resolveCaptchaRequirements/u);
   assert.match(sharedSource, /const parseCanonicalCaptchaTokens = \(captchaToken, needTurn\) =>/u);
-  assert.match(sharedSource, /if \(!needTurn\) \{\s*return \{ ok: true, malformed: false, tokens: \{ turnstile: "" \} \};/u);
+  assert.match(sharedSource, /if \(!needTurn\) return \{ ok: true, malformed: false, tokens: \{ turnstile: "" \} \};/u);
   assert.doesNotMatch(sharedSource, /recaptcha_v3/u);
   assert.doesNotMatch(sharedSource, /needRecaptcha/u);
   assert.doesNotMatch(sharedSource, /const providersRaw = typeof config\.providers === "string"/u);

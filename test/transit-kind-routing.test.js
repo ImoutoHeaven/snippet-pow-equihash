@@ -169,7 +169,7 @@ test("reject api path with biz transit kind", async () => {
     };
 
     const method = "POST";
-    const pathname = "/__pow/open";
+    const pathname = "/__pow/retired";
     const headers = makeTransitHeaders({
       secret: TEST_SECRET,
       method,
@@ -260,7 +260,7 @@ test("reject api path forged as biz by transit api-prefix", async () => {
     };
 
     const method = "POST";
-    const pathname = "/__pow/open";
+    const pathname = "/__pow/retired";
     const headers = makeTransitHeaders({
       secret: TEST_SECRET,
       method,
@@ -295,7 +295,7 @@ test("reject business path forged as api by transit api-prefix", async () => {
     };
 
     const method = "POST";
-    const pathname = "/protected/open";
+    const pathname = "/protected/retired";
     const headers = makeTransitHeaders({
       secret: TEST_SECRET,
       method,

@@ -319,7 +319,7 @@ test("core2 fail-closed on kind mismatch", async () => {
       return new Response(null, { status: 200 });
     };
 
-    const apiPath = "/__pow/open";
+    const apiPath = "/__pow/retired";
     const apiHeaders = makeTransitHeaders({
       secret: TEST_SECRET,
       exp: Math.floor(Date.now() / 1000) + 3,
@@ -513,7 +513,7 @@ test("core1 issues api transit on /__pow/* path", async () => {
     };
 
     const method = "POST";
-    const pathname = "/__pow/open";
+    const pathname = "/__pow/retired";
     const innerHeaders = makeInnerHeaders({ secret: TEST_SECRET });
     const res = await core1.fetch(
       new Request(`https://example.com${pathname}`, { method, headers: innerHeaders })
@@ -555,8 +555,8 @@ test("core1 treats encoded api path as api transit", async () => {
     };
 
     const method = "POST";
-    const requestPathname = "/__pow%2Fopen";
-    const transitPathname = "/__pow/open";
+    const requestPathname = "/__pow%2Fretired";
+    const transitPathname = "/__pow/retired";
     const innerHeaders = makeInnerHeaders({ secret: TEST_SECRET });
     const res = await core1.fetch(
       new Request(`https://example.com${requestPathname}`, { method, headers: innerHeaders })
@@ -598,7 +598,7 @@ test("core1 classifies kind using signed inner POW_API_PREFIX", async () => {
     };
 
     const method = "POST";
-    const pathname = "/altpow/open";
+    const pathname = "/altpow/retired";
     const innerHeaders = makeInnerHeaders({
       secret: TEST_SECRET,
       apiPrefix: "/altpow",
@@ -644,7 +644,7 @@ test("core2 fail-closes api transit without signed inner headers", async () => {
     };
 
     const method = "POST";
-    const pathname = "/altpow/open";
+    const pathname = "/altpow/retired";
     const exp = Math.floor(Date.now() / 1000) + 3;
     const headers = makeTransitHeaders({
       secret: TEST_SECRET,
@@ -710,8 +710,8 @@ test("core2 rejects encoded removed api path with early 404", async () => {
     };
 
     const method = "POST";
-    const requestPathname = "/__pow%2Fcommit";
-    const transitPathname = "/__pow/commit";
+    const requestPathname = "/__pow%2Fretired";
+    const transitPathname = "/__pow/retired";
     const exp = Math.floor(Date.now() / 1000) + 3;
     const headers = makeTransitHeaders({
       secret: TEST_SECRET,
@@ -743,7 +743,7 @@ test("core2 rejects encoded removed api path with early 404", async () => {
   }
 });
 
-test("core1->core2 api path keeps signed inner and rejects without commitToken payload", async () => {
+test("core1->core2 retired API path keeps signed inner and returns 404", async () => {
   const restoreGlobals = ensureGlobals();
   const { core1, core2 } = await buildCoreModules(TEST_SECRET);
   const originalFetch = globalThis.fetch;
@@ -760,7 +760,7 @@ test("core1->core2 api path keeps signed inner and rejects without commitToken p
     };
 
     const method = "POST";
-    const pathname = "/altpow/open";
+    const pathname = "/altpow/retired";
     const innerHeaders = makeInnerHeaders({
       secret: TEST_SECRET,
       apiPrefix: "/altpow",
@@ -770,7 +770,7 @@ test("core1->core2 api path keeps signed inner and rejects without commitToken p
       new Request(`https://example.com${pathname}`, { method, headers: innerHeaders })
     );
 
-    assert.equal(res.status, 400);
+    assert.equal(res.status, 404);
     assert.ok(hopRequest, "core1 forwards to core2");
     assert.ok(hopRequest.headers.get("X-Pow-Inner"), "hop keeps signed inner payload");
     assert.ok(hopRequest.headers.get("X-Pow-Inner-Mac"), "hop keeps signed inner mac");
@@ -794,7 +794,7 @@ test("core2 rejects transit when api prefix header is tampered", async () => {
     };
 
     const method = "POST";
-    const pathname = "/altpow/open";
+    const pathname = "/altpow/retired";
     const exp = Math.floor(Date.now() / 1000) + 3;
     const headers = makeTransitHeaders({
       secret: TEST_SECRET,

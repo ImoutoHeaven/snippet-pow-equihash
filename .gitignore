@@ -2,5 +2,8 @@ node_modules/
 dist/
 .worktree/
 .worktrees/
+.scratch/
+equihash-solver/target/
 docs/plans/
 docs/plan/
+.release-config-*.js

@@ -6,151 +6,84 @@ import {
   parsePowTicket,
   makePowBindingString,
   hmacSha256Base64UrlNoPad,
-  makePowCommitMac,
-  makePowStateToken,
+  makeConsumeMac,
+  makeProofMac,
   verifyTicketMac,
 } from "../lib/pow/api-protocol-shared.js";
 
-const ensureGlobals = () => {
-  const priorCrypto = globalThis.crypto;
-  const priorBtoa = globalThis.btoa;
-  const priorAtob = globalThis.atob;
+const withGlobals = () => {
+  const previous = { crypto: globalThis.crypto, btoa: globalThis.btoa, atob: globalThis.atob };
   const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, "crypto");
-  const canAssignCrypto =
-    !cryptoDescriptor || cryptoDescriptor.writable || typeof cryptoDescriptor.set === "function";
-  const didSetCrypto = !globalThis.crypto && canAssignCrypto;
-  const didSetBtoa = !globalThis.btoa;
-  const didSetAtob = !globalThis.atob;
-
-  if (didSetCrypto) globalThis.crypto = crypto.webcrypto;
-  if (didSetBtoa) globalThis.btoa = (value) => Buffer.from(value, "binary").toString("base64");
-  if (didSetAtob) globalThis.atob = (value) => Buffer.from(value, "base64").toString("binary");
-
+  const didSetCrypto = !globalThis.crypto && (!cryptoDescriptor || cryptoDescriptor.writable || typeof cryptoDescriptor.set === "function");
+  if (didSetCrypto) Object.defineProperty(globalThis, "crypto", { value: crypto.webcrypto, configurable: true });
+  if (!globalThis.btoa) globalThis.btoa = (value) => Buffer.from(value, "binary").toString("base64");
+  if (!globalThis.atob) globalThis.atob = (value) => Buffer.from(value, "base64").toString("binary");
   return () => {
-    if (didSetCrypto) {
-      if (typeof priorCrypto === "undefined") delete globalThis.crypto;
-      else globalThis.crypto = priorCrypto;
-    }
-    if (didSetBtoa) {
-      if (typeof priorBtoa === "undefined") delete globalThis.btoa;
-      else globalThis.btoa = priorBtoa;
-    }
-    if (didSetAtob) {
-      if (typeof priorAtob === "undefined") delete globalThis.atob;
-      else globalThis.atob = priorAtob;
+    for (const [key, value] of Object.entries(previous)) {
+      if (key === "crypto" && !didSetCrypto) continue;
+      if (value === undefined) delete globalThis[key];
+      else globalThis[key] = value;
     }
   };
 };
 
-const FIXTURE_SECRET = "pow-secret-1";
-const FIXTURE_TICKET = {
-  v: 3,
+const ticket = {
+  v: 5,
   e: 1700000200,
-  L: 20,
-  r: "AQIDBAUGBwgJCgsMDQ4PEA",
   cfgId: 7,
   issuedAt: 1700000000,
-  mac: "g5PnZuLbDgNBiDG4RnJC5LSvAo2bOjoOWF6RRz6D0Qg",
+  r: "AAECAwQFBgcICQoLDA0ODw",
+  n: 12,
+  k: 2,
+  m: 1,
+  mac: "A".repeat(43),
 };
-const FIXTURE_BINDING =
-  "3|1700000200|20|AQIDBAUGBwgJCgsMDQ4PEA|7|example.com|p_hash_123|1.2.3.4/32|US|12345|tlsv1|16384|2|1700000000";
-const FIXTURE_TICKET_B64 =
-  "My4xNzAwMDAwMjAwLjIwLkFRSURCQVVHQndnSkNnc01EUTRQRUEuNy4xNzAwMDAwMDAwLmc1UG5adUxiRGdOQmlERzRSbkpDNUxTdkFvMmJPam9PV0Y2UlJ6NkQwUWc";
-const FIXTURE_BINDING_MAC = "g5PnZuLbDgNBiDG4RnJC5LSvAo2bOjoOWF6RRz6D0Qg";
-const FIXTURE_COMMIT_MAC = "t5a06Qzz2AYWrtkE8T1Ssmnu2kC47mhUPuzjs55bPUo";
-const FIXTURE_STATE_TOKEN = "x1YZ_CISsKC1ZPmcGvTZePxR55JPrBngQ3CXRROhdFc";
 
-test("ticket encode/parse round-trip and rejection vectors", () => {
-  const encoded = encodePowTicket(FIXTURE_TICKET);
-  assert.equal(encoded, FIXTURE_TICKET_B64);
-  assert.deepEqual(parsePowTicket(encoded), FIXTURE_TICKET);
+const bindings = {
+  pathHash: "p_hash_123",
+  ipScope: "1.2.3.4/32",
+  country: "US",
+  asn: "12345",
+  tlsFingerprint: "tlsv1",
+};
 
+test("ticket encoding retains the canonical nine-field v5 envelope", () => {
+  const encoded = encodePowTicket(ticket);
+  assert.deepEqual(parsePowTicket(encoded), ticket);
   assert.equal(parsePowTicket(""), null);
   assert.equal(parsePowTicket("###"), null);
-  assert.equal(
-    parsePowTicket("MS4xLjEuYS4xLjEuYS4x"),
-    null,
-    "rejects malformed ticket with wrong field count",
-  );
+  assert.equal(parsePowTicket("MS4xLjEuYS4xLjEuYS4x"), null);
+  assert.equal(parsePowTicket(`${encoded}=`), null);
 });
 
-test("binding canonicalization and HMAC vectors stay stable", async () => {
-  const restoreGlobals = ensureGlobals();
+test("binding canonicalization and ticket MAC bind host and policy values", async () => {
+  const restore = withGlobals();
   try {
-    const binding = makePowBindingString(
-      FIXTURE_TICKET,
-      "Example.COM",
-      "p_hash_123",
-      "1.2.3.4/32",
-      "US",
-      "12345",
-      "tlsv1",
-      16384,
-      2,
-    );
-    assert.equal(binding, FIXTURE_BINDING);
-    const mac = await hmacSha256Base64UrlNoPad(FIXTURE_SECRET, binding);
-    assert.equal(mac, FIXTURE_BINDING_MAC);
+    const binding = makePowBindingString(ticket, "Example.COM", ...Object.values(bindings));
+    const decoded = JSON.parse(binding);
+    assert.equal(decoded[0], "equihash-ticket-v5");
+    assert.equal(decoded[9], "example.com");
+    assert.equal(decoded[10], bindings.pathHash);
+    const mac = await hmacSha256Base64UrlNoPad("pow-secret-1", binding);
+    const signed = { ...ticket, mac };
+    const url = new URL("https://example.com/protected");
+    assert.equal(await verifyTicketMac(signed, url, bindings, { POW_EQ_N: 12, POW_EQ_K: 2 }, "pow-secret-1"), binding);
+    assert.equal(await verifyTicketMac(signed, url, { ...bindings, pathHash: "changed" }, { POW_EQ_N: 12, POW_EQ_K: 2 }, "pow-secret-1"), "");
   } finally {
-    restoreGlobals();
+    restore();
   }
 });
 
-test("commit and state-token MAC vectors are deterministic", async () => {
-  const restoreGlobals = ensureGlobals();
+test("consume and proof MACs are deterministic and mutation-sensitive", async () => {
+  const restore = withGlobals();
   try {
-    const commitMac = await makePowCommitMac(
-      FIXTURE_SECRET,
-      FIXTURE_TICKET_B64,
-      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-      "p_hash_123",
-      "any",
-      "BBBBBBBBBBBBBBBBBBBBBB",
-      1700000100,
-    );
-    assert.equal(commitMac, FIXTURE_COMMIT_MAC);
-
-    const stateToken = await makePowStateToken(FIXTURE_SECRET, 7, "sid_abc", commitMac, 0, 4);
-    assert.equal(stateToken, FIXTURE_STATE_TOKEN);
+    const consume = await makeConsumeMac("secret", "ticket", 1700000100, "any", 2);
+    assert.equal(consume, await makeConsumeMac("secret", "ticket", 1700000100, "any", 2));
+    assert.notEqual(consume, await makeConsumeMac("secret", "ticket", 1700000101, "any", 2));
+    const proof = await makeProofMac("secret", "ticket", 10, 11, 0, 2);
+    assert.equal(proof, await makeProofMac("secret", "ticket", 10, 11, 0, 2));
+    assert.notEqual(proof, await makeProofMac("secret", "ticket", 10, 12, 0, 2));
   } finally {
-    restoreGlobals();
-  }
-});
-
-test("mutation negatives break verification expectations", async () => {
-  const restoreGlobals = ensureGlobals();
-  try {
-    const config = { POW_PAGE_BYTES: 16384, POW_MIX_ROUNDS: 2 };
-    const url = new URL("https://example.com/__pow/challenge");
-    const bindingValues = {
-      pathHash: "p_hash_123",
-      ipScope: "1.2.3.4/32",
-      country: "US",
-      asn: "12345",
-      tlsFingerprint: "tlsv1",
-    };
-    const verified = await verifyTicketMac(FIXTURE_TICKET, url, bindingValues, config, FIXTURE_SECRET);
-    assert.equal(verified, FIXTURE_BINDING);
-
-    const badBindingValues = { ...bindingValues, pathHash: "p_hash_mutated" };
-    assert.equal(await verifyTicketMac(FIXTURE_TICKET, url, badBindingValues, config, FIXTURE_SECRET), "");
-
-    const mutatedCaptchaMac = await makePowCommitMac(
-      FIXTURE_SECRET,
-      FIXTURE_TICKET_B64,
-      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-      "p_hash_123",
-      "BBBBBBBBBBBBBBBB",
-      "BBBBBBBBBBBBBBBBBBBBBB",
-      1700000100,
-    );
-    assert.notEqual(mutatedCaptchaMac, FIXTURE_COMMIT_MAC);
-
-    const mutatedCursor = await makePowStateToken(FIXTURE_SECRET, 7, "sid_abc", FIXTURE_COMMIT_MAC, 1, 4);
-    const mutatedBatchLen = await makePowStateToken(FIXTURE_SECRET, 7, "sid_abc", FIXTURE_COMMIT_MAC, 0, 5);
-    assert.notEqual(mutatedCursor, FIXTURE_STATE_TOKEN);
-    assert.notEqual(mutatedBatchLen, FIXTURE_STATE_TOKEN);
-  } finally {
-    restoreGlobals();
+    restore();
   }
 });

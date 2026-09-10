@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 
 const powCore1Entry = resolve(__dirname, "pow-core-1.js");
 const powCore2Entry = resolve(__dirname, "pow-core-2.js");
-const powConfigEntry = resolve(__dirname, "pow-config.js");
+const powConfigEntry = resolve(__dirname, process.env.POW_CONFIG_SOURCE || "pow-config.js");
 const templatePath = resolve(__dirname, "template.html");
 const outdir = resolve(__dirname, "dist");
 const powConfigOutfile = resolve(outdir, "pow_config_snippet.js");

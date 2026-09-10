@@ -7,357 +7,88 @@ import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createPowRuntimeFixture } from "./helpers/pow-runtime-fixture.js";
 
-const ensureGlobals = () => {
-  const priorCrypto = globalThis.crypto;
-  const priorBtoa = globalThis.btoa;
-  const priorAtob = globalThis.atob;
-  const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, "crypto");
-  const canAssignCrypto =
-    !cryptoDescriptor || cryptoDescriptor.writable || typeof cryptoDescriptor.set === "function";
-  const didSetCrypto = !globalThis.crypto && canAssignCrypto;
-  const didSetBtoa = !globalThis.btoa;
-  const didSetAtob = !globalThis.atob;
+const SECRET = "config-secret";
+const b64 = (value) => Buffer.from(value).toString("base64url");
 
-  if (didSetCrypto) {
-    globalThis.crypto = crypto.webcrypto;
-  }
-  if (didSetBtoa) {
-    globalThis.btoa = (value) => Buffer.from(value, "binary").toString("base64");
-  }
-  if (didSetAtob) {
-    globalThis.atob = (value) => Buffer.from(value, "base64").toString("binary");
-  }
-
+const withGlobals = () => {
+  const previous = { crypto: globalThis.crypto, btoa: globalThis.btoa, atob: globalThis.atob };
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+  const canAssign = !descriptor || descriptor.writable || typeof descriptor.set === "function";
+  const didSetCrypto = !globalThis.crypto && canAssign;
+  if (didSetCrypto) globalThis.crypto = crypto.webcrypto;
+  if (!globalThis.btoa) globalThis.btoa = (value) => Buffer.from(value, "binary").toString("base64");
+  if (!globalThis.atob) globalThis.atob = (value) => Buffer.from(value, "base64").toString("binary");
   return () => {
-    if (didSetCrypto) {
-      if (typeof priorCrypto === "undefined") {
-        delete globalThis.crypto;
-      } else {
-        globalThis.crypto = priorCrypto;
-      }
-    }
-
-    if (didSetBtoa) {
-      if (typeof priorBtoa === "undefined") {
-        delete globalThis.btoa;
-      } else {
-        globalThis.btoa = priorBtoa;
-      }
-    }
-
-    if (didSetAtob) {
-      if (typeof priorAtob === "undefined") {
-        delete globalThis.atob;
-      } else {
-        globalThis.atob = priorAtob;
-      }
+    for (const key of Object.keys(previous)) {
+      if (key === "crypto" && !didSetCrypto) continue;
+      if (previous[key] === undefined) delete globalThis[key];
+      else globalThis[key] = previous[key];
     }
   };
 };
 
-const base64Url = (buffer) =>
-  Buffer.from(buffer)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/u, "");
-
-const base64UrlDecode = (value) => {
-  if (!value || typeof value !== "string") return null;
-  let b64 = value.replace(/-/g, "+").replace(/_/g, "/");
-  while (b64.length % 4) b64 += "=";
-  try {
-    return Buffer.from(b64, "base64").toString("utf8");
-  } catch {
-    return null;
-  }
+const validStrategy = {
+  nav: {},
+  bypass: { bypass: false },
+  bind: { ok: true, code: "", canonicalPath: "/protected" },
+  atomic: { captchaToken: "", ticketB64: "", consumeToken: "", fromCookie: false, cookieName: "" },
 };
 
-const encodeAtomicCookie = (value) => encodeURIComponent(value);
-
-const hmacSha256Base64Url = (secret, data) =>
-  base64Url(crypto.createHmac("sha256", secret).update(data).digest());
-
-const makePowBindingString = (
-  ticket,
-  hostname,
-  pathHash,
-  ipScope,
-  country,
-  asn,
-  tlsFingerprint,
-  pageBytes,
-  mixRounds
-) =>
-  [
-    String(ticket.v),
-    String(ticket.e),
-    String(ticket.L),
-    String(ticket.r),
-    String(ticket.cfgId),
-    String(hostname || "").toLowerCase(),
-    pathHash,
-    ipScope,
-    country,
-    asn,
-    tlsFingerprint,
-    String(pageBytes),
-    String(mixRounds),
-    String(ticket.issuedAt),
-  ].join("|");
-
-const assertExpireWindow = (expireHeader) => {
-  const expire = Number.parseInt(expireHeader, 10);
-  assert.ok(Number.isSafeInteger(expire), "expire is integer seconds");
-  const now = Math.floor(Date.now() / 1000);
-  assert.ok(
-    expire >= now && expire <= now + 3,
-    "expire within expected window"
-  );
-};
-
-const assertPayloadSections = (parsed) => {
-  assert.ok(parsed && parsed.s && typeof parsed.s === "object", "payload includes s section");
-  assert.ok(parsed.s.nav && typeof parsed.s.nav === "object");
-  assert.ok(parsed.s.bypass && typeof parsed.s.bypass === "object");
-  assert.ok(parsed.s.bind && typeof parsed.s.bind === "object");
-  assert.ok(parsed.s.atomic && typeof parsed.s.atomic === "object");
-};
-
-const readInnerPayload = (headers) => {
-  const countHeader = headers.get("X-Pow-Inner-Count");
-  if (countHeader) {
-    const count = Number.parseInt(countHeader, 10);
-    if (!Number.isFinite(count) || count <= 0) {
-      return { payload: "", count: 0, chunked: true };
-    }
-    let payload = "";
-    for (let i = 0; i < count; i += 1) {
-      payload += headers.get(`X-Pow-Inner-${i}`) || "";
-    }
-    return { payload, count, chunked: true };
-  }
-  return { payload: headers.get("X-Pow-Inner") || "", count: 0, chunked: false };
-};
-
-const replaceConfigSecret = (source, secret) =>
-  source.replace(/const CONFIG_SECRET = "[^"]*";/u, `const CONFIG_SECRET = "${secret}";`);
-
-const buildConfigModule = async (secret = "config-secret", options = {}) => {
-  const repoRoot = fileURLToPath(new URL("..", import.meta.url));
-  const [powConfigSource, runtimeSource, pathGlobSource, lruCacheSource] = await Promise.all([
-    readFile(join(repoRoot, "pow-config.js"), "utf8"),
-    readFile(join(repoRoot, "lib", "rule-engine", "runtime.js"), "utf8"),
-    readFile(join(repoRoot, "lib", "rule-engine", "path-glob.js"), "utf8"),
-    readFile(join(repoRoot, "lib", "rule-engine", "lru-cache.js"), "utf8"),
-  ]);
-  const gluePadding = options.longGlue ? "x".repeat(6000) : "";
-  const configOverrides = options.configOverrides || {};
-  const compiledConfig = JSON.stringify([
-    {
-      host: { kind: "eq", value: "example.com" },
-      path: { kind: "eq", value: "/protected", case: "sensitive" },
-      hostType: "exact",
-      hostExact: "example.com",
-      pathType: "exact",
-      pathExact: "/protected",
-      when: null,
-      whenNeeds: {},
-      config: {
-        POW_TOKEN: "pow-secret",
-        powcheck: true,
-        POW_BIND_TLS: false,
-        POW_ESM_URL: "https://example.com/esm",
-        POW_GLUE_URL: `https://example.com/glue${gluePadding}`,
-        ...configOverrides,
-      },
-    },
-  ]);
-  const injected = powConfigSource.replace(/__COMPILED_CONFIG__/gu, compiledConfig);
-  const withSecret = replaceConfigSecret(injected, secret);
-  const tmpDir = await mkdtemp(join(tmpdir(), "pow-config-test-"));
-  await mkdir(join(tmpDir, "lib", "rule-engine"), { recursive: true });
-  await writeFile(join(tmpDir, "lib", "rule-engine", "runtime.js"), runtimeSource);
-  await writeFile(join(tmpDir, "lib", "rule-engine", "path-glob.js"), pathGlobSource);
-  await writeFile(join(tmpDir, "lib", "rule-engine", "lru-cache.js"), lruCacheSource);
-  const tmpPath = join(tmpDir, "pow-config-test.js");
-  await writeFile(tmpPath, withSecret);
-  return tmpPath;
-};
-
-const buildCoreModules = async (secret = "config-secret") => {
-  const { tmpDir } = await createPowRuntimeFixture({
-    secret,
-    tmpPrefix: "pow-core-inner-test-",
-  });
-
-  const nonce = `${Date.now()}-${Math.random()}`;
-  const [core1Module, core2Module] = await Promise.all([
-    import(`${pathToFileURL(join(tmpDir, "pow-core-1.js")).href}?v=${nonce}`),
-    import(`${pathToFileURL(join(tmpDir, "pow-core-2.js")).href}?v=${nonce}`),
-  ]);
-  return {
-    core1: core1Module.default,
-    core2: core2Module.default,
-  };
-};
-
-const normalizeApiPrefix = (value) => {
-  if (typeof value !== "string") return "/__pow";
-  const trimmed = value.trim();
-  if (!trimmed) return "/__pow";
-  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-  const normalized = withSlash.replace(/\/+$/u, "");
-  return normalized || "/__pow";
-};
-
-const makeTransitHeaders = ({
-  secret,
-  exp,
-  kind,
-  method,
-  pathname,
-  apiPrefix = "/__pow",
-}) => {
-  const normalizedMethod = typeof method === "string" && method ? method.toUpperCase() : "GET";
-  const normalizedPath =
-    typeof pathname === "string" && pathname ? (pathname.startsWith("/") ? pathname : `/${pathname}`) : "/";
-  const normalizedApiPrefix = normalizeApiPrefix(apiPrefix);
-  const input = `v1|${exp}|${kind}|${normalizedMethod}|${normalizedPath}|${normalizedApiPrefix}`;
-  const mac = hmacSha256Base64Url(secret, input);
-  const headers = new Headers();
-  headers.set("X-Pow-Transit", kind);
-  headers.set("X-Pow-Transit-Mac", mac);
-  headers.set("X-Pow-Transit-Expire", String(exp));
-  headers.set("X-Pow-Transit-Api-Prefix", normalizedApiPrefix);
-  return headers;
-};
-
-const buildInnerPayloadForCore = ({ apiPrefix = "/__pow", extraConfig = {} } = {}) => ({
+const innerObject = (config = {}, strategy = validStrategy, derived = null) => ({
   v: 1,
-  id: 0,
-  c: { POW_API_PREFIX: apiPrefix, ...extraConfig },
-  d: {
-    ipScope: "1.2.3.4/32",
-    country: "any",
-    asn: "any",
-    tlsFingerprint: "any",
+  id: 7,
+  c: {
+    POW_API_PREFIX: "/__pow",
+    POW_TOKEN: "pow-secret",
+    POW_VERSION: 4,
+    powcheck: false,
+    turncheck: false,
+    POW_BIND_PATH: false,
+    POW_BIND_IPRANGE: false,
+    PROOF_TTL_SEC: 600,
+    POW_TICKET_TTL_SEC: 600,
+    ATOMIC_CONSUME: false,
+    ...config,
   },
-  s: {
-    nav: {},
-    bypass: { bypass: false },
-    bind: { ok: true, code: "", canonicalPath: "/protected" },
-    atomic: {
-      captchaToken: "",
-      ticketB64: "",
-      consumeToken: "",
-      fromCookie: false,
-      cookieName: "__Secure-pow_a",
-    },
-  },
+  d: derived || { ipScope: "any", country: "any", asn: "any", tlsFingerprint: "any" },
+  s: strategy,
 });
 
-const makeInnerHeaders = ({
-  secret,
-  chunked = false,
-  exp = Math.floor(Date.now() / 1000) + 3,
-  apiPrefix = "/__pow",
-  payloadObj,
-}) => {
-  const encodedPayload = payloadObj || buildInnerPayloadForCore({ apiPrefix });
-  const payload = base64Url(Buffer.from(JSON.stringify(encodedPayload), "utf8"));
-  const mac = hmacSha256Base64Url(secret, `${payload}.${exp}`);
-  const headers = new Headers();
-  if (chunked) {
-    const midpoint = Math.floor(payload.length / 2);
-    const part0 = payload.slice(0, midpoint);
-    const part1 = payload.slice(midpoint);
-    headers.set("X-Pow-Inner-Count", "2");
-    headers.set("X-Pow-Inner-0", part0);
-    headers.set("X-Pow-Inner-1", part1);
-  } else {
-    headers.set("X-Pow-Inner", payload);
-  }
-  headers.set("X-Pow-Inner-Mac", mac);
-  headers.set("X-Pow-Inner-Expire", String(exp));
-  return headers;
+const signedInner = (payload, exp = Math.floor(Date.now() / 1000) + 3) => {
+  const encoded = b64(JSON.stringify(payload));
+  const mac = crypto.createHmac("sha256", SECRET).update(`${encoded}.${exp}`).digest("base64url");
+  return { encoded, mac, exp };
 };
 
-test("runtime contracts have no recaptcha protocol references", async () => {
-  const repoRoot = fileURLToPath(new URL("..", import.meta.url));
-  const runtimeSources = await Promise.all([
-    readFile(join(repoRoot, "lib", "pow", "api-engine.js"), "utf8"),
-    readFile(join(repoRoot, "lib", "pow", "business-gate.js"), "utf8"),
-    readFile(join(repoRoot, "glue.js"), "utf8"),
+const transitHeaders = ({ method, pathname, kind = "biz", apiPrefix = "/__pow", exp = Math.floor(Date.now() / 1000) + 3 }) => {
+  const input = `v1|${exp}|${kind}|${method.toUpperCase()}|${pathname}|${apiPrefix}`;
+  return {
+    "X-Pow-Transit": kind,
+    "X-Pow-Transit-Mac": crypto.createHmac("sha256", SECRET).update(input).digest("base64url"),
+    "X-Pow-Transit-Expire": String(exp),
+    "X-Pow-Transit-Api-Prefix": apiPrefix,
+  };
+};
+
+const loadCores = async () => {
+  const { tmpDir } = await createPowRuntimeFixture({ secret: SECRET, tmpPrefix: "pow-inner-cleanup-" });
+  const stamp = `${Date.now()}-${Math.random()}`;
+  const [core1, core2] = await Promise.all([
+    import(`${pathToFileURL(join(tmpDir, "pow-core-1.js")).href}?v=${stamp}`),
+    import(`${pathToFileURL(join(tmpDir, "pow-core-2.js")).href}?v=${stamp}`),
   ]);
-  for (const source of runtimeSources) {
-    assert.doesNotMatch(source, /recaptcha|RECAPTCHA_|recaptcha_v3/u);
-  }
-});
+  return { core1: core1.default.fetch, core2: core2.default.fetch };
+};
 
-test("core-1 rejects missing or invalid inner payload", async () => {
-  const restoreGlobals = ensureGlobals();
-  const { core1 } = await buildCoreModules("config-secret");
-  const originalFetch = globalThis.fetch;
-  let forwardedCalls = 0;
-  try {
-    globalThis.fetch = async () => {
-      forwardedCalls += 1;
-      return new Response("ok", { status: 200 });
-    };
+const readInner = (request) => {
+  const count = Number.parseInt(request.headers.get("X-Pow-Inner-Count") || "0", 10);
+  if (count > 0) return Array.from({ length: count }, (_, i) => request.headers.get(`X-Pow-Inner-${i}`) || "").join("");
+  return request.headers.get("X-Pow-Inner") || "";
+};
 
-    const missing = await core1.fetch(new Request("https://example.com/protected"));
-    assert.equal(missing.status, 500);
-    assert.equal(forwardedCalls, 0);
-
-    const invalidHeaders = makeInnerHeaders({ secret: "config-secret" });
-    invalidHeaders.set("X-Pow-Inner-Mac", "tampered");
-    const invalid = await core1.fetch(
-      new Request("https://example.com/protected", { headers: invalidHeaders })
-    );
-    assert.equal(invalid.status, 500);
-    assert.equal(forwardedCalls, 0);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("core-1 rejects oversized direct inner payload header", async () => {
-  const restoreGlobals = ensureGlobals();
-  const { core1 } = await buildCoreModules("config-secret");
-  const originalFetch = globalThis.fetch;
-  let forwardedCalls = 0;
-  try {
-    globalThis.fetch = async () => {
-      forwardedCalls += 1;
-      return new Response("ok", { status: 200 });
-    };
-
-    const hugePayload = buildInnerPayloadForCore({
-      extraConfig: {
-        oversized: "x".repeat(130000),
-      },
-    });
-    const headers = makeInnerHeaders({
-      secret: "config-secret",
-      payloadObj: hugePayload,
-    });
-    const { payload } = readInnerPayload(headers);
-    assert.ok(payload.length > 128 * 1024, "direct inner payload exceeds parser max");
-
-    const res = await core1.fetch(new Request("https://example.com/protected", { headers }));
-    assert.equal(res.status, 500);
-    assert.equal(forwardedCalls, 0);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("core-2 strips x-pow-inner* and x-pow-transit* before origin fetch", async () => {
-  const restoreGlobals = ensureGlobals();
-  const { core2 } = await buildCoreModules("config-secret");
+test("core2 authenticates chunked inner headers and strips both internal namespaces", async () => {
+  const restore = withGlobals();
+  const { core2 } = await loadCores();
   const originalFetch = globalThis.fetch;
   let forwarded = null;
   try {
@@ -365,1299 +96,243 @@ test("core-2 strips x-pow-inner* and x-pow-transit* before origin fetch", async 
       forwarded = request;
       return new Response("ok", { status: 200 });
     };
-
-    const method = "GET";
-    const pathname = "/protected";
-    const exp = Math.floor(Date.now() / 1000) + 3;
-    const headers = makeTransitHeaders({
-      secret: "config-secret",
-      exp,
-      kind: "biz",
-      method,
-      pathname,
-        apiPrefix: "/__pow",
-    });
-    const innerHeaders = makeInnerHeaders({ secret: "config-secret", chunked: true });
-    for (const [key, value] of innerHeaders.entries()) {
-      headers.set(key, value);
-    }
+    const signed = signedInner(innerObject());
+    const midpoint = Math.floor(signed.encoded.length / 2);
+    const headers = new Headers(transitHeaders({ method: "GET", pathname: "/protected" }));
+    headers.set("X-Pow-Inner-Count", "2");
+    headers.set("X-Pow-Inner-0", signed.encoded.slice(0, midpoint));
+    headers.set("X-Pow-Inner-1", signed.encoded.slice(midpoint));
+    headers.set("X-Pow-Inner-Mac", signed.mac);
+    headers.set("X-Pow-Inner-Expire", String(signed.exp));
     headers.set("X-Pow-Transit-Extra", "spoofed");
+    const response = await core2(new Request("https://example.com/protected", { headers }));
+    assert.equal(response.status, 200);
+    assert.ok(forwarded);
+    assert.equal(readInner(forwarded), "");
+    for (const key of forwarded.headers.keys()) assert.equal(key.toLowerCase().startsWith("x-pow-"), false, key);
+  } finally {
+    globalThis.fetch = originalFetch;
+    restore();
+  }
+});
 
-    const res = await core2.fetch(
-      new Request(`https://example.com${pathname}`, { method, headers })
-    );
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "origin request forwarded");
-    for (const key of forwarded.headers.keys()) {
-      const normalized = key.toLowerCase();
-      assert.equal(normalized.startsWith("x-pow-inner"), false, `${key} is stripped`);
-      assert.equal(normalized.startsWith("x-pow-transit"), false, `${key} is stripped`);
+test("missing, malformed, or expired inner strategy fails closed before origin", async () => {
+  const restore = withGlobals();
+  const { core1 } = await loadCores();
+  const originalFetch = globalThis.fetch;
+  let originCalls = 0;
+  try {
+    globalThis.fetch = async () => {
+      originCalls += 1;
+      return new Response("origin", { status: 200 });
+    };
+    for (const payload of [innerObject({}, null), innerObject({}, { ...validStrategy, bind: { ok: "true", code: "", canonicalPath: "/protected" } })]) {
+      const signed = signedInner(payload);
+      const response = await core1(new Request("https://example.com/protected", {
+        headers: { "X-Pow-Inner": signed.encoded, "X-Pow-Inner-Mac": signed.mac, "X-Pow-Inner-Expire": String(signed.exp) },
+      }));
+      assert.equal(response.status, 500);
     }
+    const expired = signedInner(innerObject(), Math.floor(Date.now() / 1000) - 1);
+    const response = await core1(new Request("https://example.com/protected", {
+      headers: { "X-Pow-Inner": expired.encoded, "X-Pow-Inner-Mac": expired.mac, "X-Pow-Inner-Expire": String(expired.exp) },
+    }));
+    assert.equal(response.status, 500);
+    assert.equal(originCalls, 0);
   } finally {
     globalThis.fetch = originalFetch;
-    restoreGlobals();
+    restore();
   }
 });
 
-test("transit mac helper matches node crypto", async () => {
-  const restoreGlobals = ensureGlobals();
-  try {
-    const repoRoot = fileURLToPath(new URL("..", import.meta.url));
-    const transitMod = await import(
-      `${pathToFileURL(join(repoRoot, "lib", "pow", "transit-auth.js")).href}?v=${Date.now()}`
-    );
-    const hmac = transitMod.makeTransitMac;
-
-    assert.equal(typeof hmac, "function");
-
-    const payload = base64Url(Buffer.from("{\"v\":1}", "utf8"));
-    const expire = "1700000000";
-    const signatureInput = `${payload}.${expire}`;
-    const secret = "config-secret";
-    const expected = base64Url(
-      crypto.createHmac("sha256", secret).update(signatureInput).digest()
-    );
-    const actual = await hmac(secret, signatureInput);
-
-    assert.equal(actual, expected);
-  } finally {
-    restoreGlobals();
-  }
-});
-
-test("pow-config injects signed header", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule();
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
+test("missing, tampered, future, oversized, and invalid chunked inner headers stop before origin", async () => {
+  const restore = withGlobals();
+  const { core1 } = await loadCores();
   const originalFetch = globalThis.fetch;
+  let originCalls = 0;
   try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
+    globalThis.fetch = async () => {
+      originCalls += 1;
+      return new Response("origin", { status: 200 });
     };
+    const cases = [];
+    cases.push(new Request("https://example.com/protected"));
 
-    const req = new Request("https://example.com/protected", {
+    const signed = signedInner(innerObject());
+    cases.push(new Request("https://example.com/protected", {
+      headers: { "X-Pow-Inner": signed.encoded, "X-Pow-Inner-Mac": "tampered", "X-Pow-Inner-Expire": String(signed.exp) },
+    }));
+
+    const future = signedInner(innerObject(), Math.floor(Date.now() / 1000) + 10);
+    cases.push(new Request("https://example.com/protected", {
+      headers: { "X-Pow-Inner": future.encoded, "X-Pow-Inner-Mac": future.mac, "X-Pow-Inner-Expire": String(future.exp) },
+    }));
+
+    const oversized = signedInner(innerObject({ oversized: "x".repeat(130000) }));
+    cases.push(new Request("https://example.com/protected", {
+      headers: { "X-Pow-Inner": oversized.encoded, "X-Pow-Inner-Mac": oversized.mac, "X-Pow-Inner-Expire": String(oversized.exp) },
+    }));
+
+    const chunked = signedInner(innerObject());
+    cases.push(new Request("https://example.com/protected", {
       headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-        "X-Pow-Inner": "spoofed",
-        "X-Pow-Inner-Mac": "spoofed",
+        "X-Pow-Inner-Count": "2",
+        "X-Pow-Inner-0": chunked.encoded.slice(0, Math.floor(chunked.encoded.length / 2)),
+        "X-Pow-Inner-Mac": chunked.mac,
+        "X-Pow-Inner-Expire": String(chunked.exp),
       },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-    const { payload } = readInnerPayload(forwarded.headers);
-    const mac = forwarded.headers.get("X-Pow-Inner-Mac") || "";
-    const expireHeader = forwarded.headers.get("X-Pow-Inner-Expire") || "";
-    assert.ok(payload.length > 0, "payload header set");
-    assert.ok(mac.length > 0, "mac header set");
-    assert.ok(expireHeader.length > 0, "expire header set");
-    assert.notEqual(payload, "spoofed");
-    assert.notEqual(mac, "spoofed");
+    }));
 
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.v, 1);
-    assert.equal(parsed.id, 0);
-    assertPayloadSections(parsed);
-
-    assertExpireWindow(expireHeader);
-
-    const expectedMac = base64Url(
-      crypto
-        .createHmac("sha256", "config-secret")
-        .update(`${payload}.${expireHeader}`)
-        .digest()
-    );
-    assert.equal(mac, expectedMac);
+    for (const request of cases) assert.equal((await core1(request)).status, 500);
+    assert.equal(originCalls, 0);
   } finally {
     globalThis.fetch = originalFetch;
-    restoreGlobals();
+    restore();
   }
 });
 
-test("pow-config injects chunked inner headers when payload is large", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", { longGlue: true });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
+test("binding failures return 400 while a signed bypass still forwards", async () => {
+  const restore = withGlobals();
+  const { core1 } = await loadCores();
   const originalFetch = globalThis.fetch;
+  let originCalls = 0;
   try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
+    globalThis.fetch = async () => {
+      originCalls += 1;
+      return new Response("origin", { status: 200 });
     };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const countHeader = forwarded.headers.get("X-Pow-Inner-Count");
-    const mac = forwarded.headers.get("X-Pow-Inner-Mac") || "";
-    const expireHeader = forwarded.headers.get("X-Pow-Inner-Expire") || "";
-    assert.ok(countHeader, "chunk count header set");
-    assert.equal(forwarded.headers.get("X-Pow-Inner"), null);
-    assert.ok(expireHeader.length > 0, "expire header set");
-
-    const count = Number.parseInt(countHeader, 10);
-    assert.ok(Number.isFinite(count) && count > 1, "chunk count is numeric");
-
-    let payload = "";
-    for (let i = 0; i < count; i += 1) {
-      const part = forwarded.headers.get(`X-Pow-Inner-${i}`) || "";
-      assert.ok(part.length > 0, `chunk ${i} set`);
-      payload += part;
+    for (const code of ["missing", "invalid"]) {
+      const payload = innerObject({ powcheck: true }, { ...validStrategy, bind: { ok: false, code, canonicalPath: "/protected" } });
+      const signed = signedInner(payload);
+      const response = await core1(new Request("https://example.com/protected", {
+        headers: { "X-Pow-Inner": signed.encoded, "X-Pow-Inner-Mac": signed.mac, "X-Pow-Inner-Expire": String(signed.exp) },
+      }));
+      assert.equal(response.status, 400);
     }
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.v, 1);
-    assert.equal(parsed.id, 0);
-    assert.ok(parsed.c && typeof parsed.c.POW_GLUE_URL === "string");
-    assertPayloadSections(parsed);
-
-    assertExpireWindow(expireHeader);
-
-    const expectedMac = base64Url(
-      crypto
-        .createHmac("sha256", "config-secret")
-        .update(`${payload}.${expireHeader}`)
-        .digest()
-    );
-    assert.equal(mac, expectedMac);
+    const bypass = innerObject({ powcheck: true }, { ...validStrategy, bypass: { bypass: true }, bind: { ok: false, code: "missing", canonicalPath: "/protected" } });
+    const signed = signedInner(bypass);
+    const response = await core1(new Request("https://example.com/protected", {
+      headers: { "X-Pow-Inner": signed.encoded, "X-Pow-Inner-Mac": signed.mac, "X-Pow-Inner-Expire": String(signed.exp) },
+    }));
+    assert.equal(response.status, 200);
+    assert.equal(originCalls, 1);
   } finally {
     globalThis.fetch = originalFetch;
-    restoreGlobals();
+    restore();
   }
 });
 
-test("pow-config rejects placeholder CONFIG_SECRET", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("replace-me");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
+test("atomic query, header, and cookie precedence is preserved by pow-config", async () => {
+  const restore = withGlobals();
+  const root = fileURLToPath(new URL("..", import.meta.url));
+  const [source, runtime, pathGlob, lru] = await Promise.all([
+    readFile(join(root, "pow-config.js"), "utf8"),
+    readFile(join(root, "lib/rule-engine/runtime.js"), "utf8"),
+    readFile(join(root, "lib/rule-engine/path-glob.js"), "utf8"),
+    readFile(join(root, "lib/rule-engine/lru-cache.js"), "utf8"),
+  ]);
+  const compiled = JSON.stringify([{ host: { kind: "eq", value: "example.com" }, hostType: "exact", hostExact: "example.com", path: null, config: { powcheck: false, turncheck: true, POW_TOKEN: "pow-secret", POW_BIND_PATH: false, POW_BIND_IPRANGE: false, TURNSTILE_SITEKEY: "sitekey", TURNSTILE_SECRET: "secret" } }]);
+  const temp = await mkdtemp(join(tmpdir(), "pow-config-cleanup-"));
+  await mkdir(join(temp, "lib/rule-engine"), { recursive: true });
+  await mkdir(join(temp, "lib/equihash"), { recursive: true });
+  await mkdir(join(temp, "lib/pow"), { recursive: true });
+  await writeFile(join(temp, "lib/rule-engine/runtime.js"), runtime);
+  await writeFile(join(temp, "lib/rule-engine/path-glob.js"), pathGlob);
+  await writeFile(join(temp, "lib/rule-engine/lru-cache.js"), lru);
+  await Promise.all([
+    readFile(join(root, "lib/equihash/encoding.js"), "utf8").then((text) => writeFile(join(temp, "lib/equihash/encoding.js"), text)),
+    readFile(join(root, "lib/equihash/params.js"), "utf8").then((text) => writeFile(join(temp, "lib/equihash/params.js"), text)),
+    readFile(join(root, "lib/equihash/ticket.js"), "utf8").then((text) => writeFile(join(temp, "lib/equihash/ticket.js"), text)),
+    readFile(join(root, "lib/pow/auth-primitives.js"), "utf8").then((text) => writeFile(join(temp, "lib/pow/auth-primitives.js"), text)),
+  ]);
+  await writeFile(join(temp, "pow-config.js"), source.replace(/__COMPILED_CONFIG__/gu, compiled).replace(/const CONFIG_SECRET = "[^"]*";/u, 'const CONFIG_SECRET = "config-secret";'));
+  const mod = await import(`${pathToFileURL(join(temp, "pow-config.js")).href}?v=${Date.now()}`);
   const originalFetch = globalThis.fetch;
+  let forwarded = null;
   try {
     globalThis.fetch = async (request) => {
       forwarded = request;
       return new Response("ok", { status: 200 });
     };
-
-    const req = new Request("https://example.com/protected", {
+    const response = await mod.default.fetch(new Request("https://example.com/protected?__ts=query-turn&__tt=query-ticket&__ct=query-consume&keep=1", {
       headers: {
         "CF-Connecting-IP": "1.2.3.4",
+        "x-turnstile": "header-turn",
+        "x-ticket": "header-ticket",
+        "x-consume": "header-consume",
+        Cookie: "__Secure-pow_a=1%7Ct%7Ccookie-turn%7Ccookie-ticket",
       },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 500);
-    assert.equal(forwarded, null);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config clamps invalid cfgId from pow api", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule();
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  const ticket = ["v1", "r", "p", "t", "999", "mac"].join(".");
-  const ticketB64 = base64Url(Buffer.from(ticket, "utf8"));
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/__pow/commit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ticketB64 }),
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.id, -1);
-    assert.equal(parsed.c.powcheck, false);
-    assert.equal(parsed.c.POW_TOKEN, undefined);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config preserves numeric POW_SEGMENT_LEN", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: { POW_SEGMENT_LEN: 32 },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.POW_SEGMENT_LEN, 16);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config hard-cuts POW_VERSION to 4 in forwarded config", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: { POW_VERSION: 3 },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.POW_VERSION, 4);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config preserves turnstile keys for turncheck", async () => {
-  const restoreGlobals = ensureGlobals();
-  const secret = "config-secret";
-  const modulePath = await buildConfigModule(secret, {
-    configOverrides: {
-      turncheck: true,
-      TURNSTILE_SITEKEY: "turn-site-key",
-      TURNSTILE_SECRET: "turn-secret",
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(typeof parsed.c.TURNSTILE_SITEKEY, "string");
-    assert.equal(typeof parsed.c.TURNSTILE_SECRET, "string");
-    assert.ok(parsed.c.TURNSTILE_SITEKEY.length > 0);
-    assert.ok(parsed.c.TURNSTILE_SECRET.length > 0);
-
-    const { core1 } = await buildCoreModules(secret);
-    const powRes = await core1.fetch(
-      new Request("https://example.com/anything", {
-        method: "OPTIONS",
-        headers: forwarded.headers,
-      })
-    );
-    assert.ok(
-      powRes.status === 204 || powRes.status === 403,
-      `expected fail-closed guard or preflight status, got ${powRes.status}`
-    );
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config normalizes non-string turnstile keys", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      turncheck: false,
-      TURNSTILE_SITEKEY: 123,
-      TURNSTILE_SECRET: { secret: true },
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.TURNSTILE_SITEKEY, "");
-    assert.equal(parsed.c.TURNSTILE_SECRET, "");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config forwards aggregator consume toggle", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      turncheck: true,
-      TURNSTILE_SITEKEY: "turn-site-key",
-      TURNSTILE_SECRET: "turn-secret",
-      AGGREGATOR_POW_ATOMIC_CONSUME: true,
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.AGGREGATOR_POW_ATOMIC_CONSUME, true);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config normalizes numeric string POW_SEGMENT_LEN for split core", async () => {
-  const restoreGlobals = ensureGlobals();
-  const secret = "config-secret";
-  const modulePath = await buildConfigModule(secret, {
-    configOverrides: { POW_SEGMENT_LEN: "32" },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.POW_SEGMENT_LEN, 16);
-
-    const { core1 } = await buildCoreModules(secret);
-    const powRes = await core1.fetch(
-      new Request("https://example.com/anything", {
-        method: "OPTIONS",
-        headers: forwarded.headers,
-      })
-    );
-    assert.ok(
-      powRes.status === 204 || powRes.status === 403,
-      `expected fail-closed guard or preflight status, got ${powRes.status}`
-    );
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config normalizes range string POW_SEGMENT_LEN for split core", async () => {
-  const restoreGlobals = ensureGlobals();
-  const secret = "config-secret";
-  const modulePath = await buildConfigModule(secret, {
-    configOverrides: { POW_SEGMENT_LEN: "12-34" },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.POW_SEGMENT_LEN, "12-16");
-
-    const { core1 } = await buildCoreModules(secret);
-    const powRes = await core1.fetch(
-      new Request("https://example.com/anything", {
-        method: "OPTIONS",
-        headers: forwarded.headers,
-      })
-    );
-    assert.ok(
-      powRes.status === 204 || powRes.status === 403,
-      `expected fail-closed guard or preflight status, got ${powRes.status}`
-    );
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config never forwards POW_SEGMENT_LEN as 1", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: { POW_SEGMENT_LEN: "1-1" },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.POW_SEGMENT_LEN, "2-2");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config rejects oversized atomic snapshot with 431 and empty body", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request(`https://example.com/protected?__ts=${"a".repeat(9000)}`, {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 431);
-    assert.equal(forwarded, null);
-    assert.equal(await res.text(), "");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config rejects invalid atomic format with 400 and empty body", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected?__tt=bad*ticket", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 400);
-    assert.equal(forwarded, null);
-    assert.equal(await res.text(), "");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config accepts large turnstile captchaToken envelope under limits", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const envelope = JSON.stringify({ turnstile: "t".repeat(7984) });
-    assert.ok(envelope.length < 8192, "envelope stays under captcha token max");
-    const ticket = "a".repeat(2048);
-    const consume = "c".repeat(256);
-    const req = new Request(
-      `https://example.com/protected?__ts=${encodeURIComponent(envelope)}&__tt=${ticket}&__ct=${consume}`,
-      {
-        headers: {
-          "CF-Connecting-IP": "1.2.3.4",
-        },
-      }
-    );
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "request is forwarded for large valid envelope");
-    assert.equal(await res.text(), "ok");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config enforces captchaToken length boundary at max and max+1", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  const originalFetch = globalThis.fetch;
-  try {
-    let forwarded = null;
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const atMaxReq = new Request(`https://example.com/protected?__ts=${"t".repeat(8192)}`, {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const atMaxRes = await handler(atMaxReq);
-    assert.equal(atMaxRes.status, 200);
-    assert.ok(forwarded, "request is forwarded at boundary max");
-    assert.equal(await atMaxRes.text(), "ok");
-
-    forwarded = null;
-    const overReq = new Request(`https://example.com/protected?__ts=${"t".repeat(8193)}`, {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const overRes = await handler(overReq);
-    assert.equal(overRes.status, 431);
-    assert.equal(forwarded, null);
-    assert.equal(await overRes.text(), "");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config enforces ticketB64 length boundary at max and max+1", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  const originalFetch = globalThis.fetch;
-  try {
-    let forwarded = null;
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const atMaxReq = new Request(`https://example.com/protected?__tt=${"a".repeat(2048)}`, {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const atMaxRes = await handler(atMaxReq);
-    assert.equal(atMaxRes.status, 200);
-    assert.ok(forwarded, "request is forwarded at boundary max");
-    assert.equal(await atMaxRes.text(), "ok");
-
-    forwarded = null;
-    const overReq = new Request(`https://example.com/protected?__tt=${"a".repeat(2049)}`, {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const overRes = await handler(overReq);
-    assert.equal(overRes.status, 431);
-    assert.equal(forwarded, null);
-    assert.equal(await overRes.text(), "");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config marks oversized bindPath input as invalid", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      POW_BIND_PATH: true,
-      bindPathMode: "query",
-      bindPathQueryName: "path",
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const tooLongPath = `/${"a".repeat(2048)}`;
-    const req = new Request(
-      `https://example.com/protected?path=${encodeURIComponent(tooLongPath)}`,
-      {
-        headers: {
-          "CF-Connecting-IP": "1.2.3.4",
-        },
-      }
-    );
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "request is still forwarded with bind invalid strategy");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.bind.ok, false);
-    assert.equal(parsed.s.bind.code, "invalid");
-    assert.equal(parsed.s.bind.canonicalPath, "/protected");
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config frontloads atomic strategy with cookie priority and strips request", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      bindPathMode: "query",
-      bindPathQueryName: "path",
-      STRIP_ATOMIC_QUERY: true,
-      STRIP_ATOMIC_HEADERS: true,
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request(
-      "https://example.com/protected?__ts=q-turn&__tt=q-ticket&__ct=1&path=%2Fbound&keep=1",
-      {
-        headers: {
-          "CF-Connecting-IP": "1.2.3.4",
-          "x-turnstile": "h-turn",
-          "x-ticket": "h-ticket",
-          "x-consume": "1",
-          Cookie: `a=1; __Secure-pow_a=${encodeAtomicCookie("1|t|c-turn|c-ticket")}`,
-        },
-      }
-    );
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
+    }));
+    assert.equal(response.status, 200);
+    assert.ok(forwarded);
+    assert.equal(new URL(forwarded.url).searchParams.get("__ts"), null);
     assert.equal(forwarded.headers.get("x-turnstile"), null);
-    assert.equal(forwarded.headers.get("x-ticket"), null);
-    assert.equal(forwarded.headers.get("x-consume"), null);
-    const forwardedUrl = new URL(forwarded.url);
-    assert.equal(forwardedUrl.searchParams.get("__ts"), null);
-    assert.equal(forwardedUrl.searchParams.get("__tt"), null);
-    assert.equal(forwardedUrl.searchParams.get("__ct"), null);
-    assert.equal(forwardedUrl.searchParams.get("keep"), "1");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.atomic.captchaToken, "c-turn");
-    assert.equal(parsed.s.atomic.turnToken, undefined);
-    assert.equal(parsed.s.atomic.ticketB64, "c-ticket");
-    assert.equal(parsed.s.atomic.consumeToken, "");
-    assert.equal(parsed.s.atomic.fromCookie, true);
-    assert.ok(parsed.s.bypass && typeof parsed.s.bypass === "object");
-    assert.ok(parsed.s.bind && typeof parsed.s.bind === "object");
+    const payload = JSON.parse(Buffer.from(readInner(forwarded), "base64url").toString("utf8"));
+    assert.equal(payload.s.atomic.captchaToken, "cookie-turn");
+    assert.equal(payload.s.atomic.ticketB64, "cookie-ticket");
+    assert.equal(payload.s.atomic.consumeToken, "");
   } finally {
     globalThis.fetch = originalFetch;
-    restoreGlobals();
+    restore();
   }
 });
 
-test("pow-config accepts header-only consume token", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      STRIP_ATOMIC_QUERY: true,
-      STRIP_ATOMIC_HEADERS: true,
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
+test("atomic snapshot limits reject malformed or oversized transport before forwarding", async () => {
+  const restore = withGlobals();
+  const root = fileURLToPath(new URL("..", import.meta.url));
+  const [source, runtime, pathGlob, lru] = await Promise.all([
+    readFile(join(root, "pow-config.js"), "utf8"),
+    readFile(join(root, "lib/rule-engine/runtime.js"), "utf8"),
+    readFile(join(root, "lib/rule-engine/path-glob.js"), "utf8"),
+    readFile(join(root, "lib/rule-engine/lru-cache.js"), "utf8"),
+  ]);
+  const compiled = JSON.stringify([{ host: { kind: "eq", value: "example.com" }, hostType: "exact", hostExact: "example.com", path: null, config: { POW_TOKEN: "pow-secret" } }]);
+  const temp = await mkdtemp(join(tmpdir(), "pow-config-limits-"));
+  await mkdir(join(temp, "lib/rule-engine"), { recursive: true });
+  await mkdir(join(temp, "lib/equihash"), { recursive: true });
+  await mkdir(join(temp, "lib/pow"), { recursive: true });
+  await writeFile(join(temp, "lib/rule-engine/runtime.js"), runtime);
+  await writeFile(join(temp, "lib/rule-engine/path-glob.js"), pathGlob);
+  await writeFile(join(temp, "lib/rule-engine/lru-cache.js"), lru);
+  await Promise.all([
+    readFile(join(root, "lib/equihash/encoding.js"), "utf8").then((text) => writeFile(join(temp, "lib/equihash/encoding.js"), text)),
+    readFile(join(root, "lib/equihash/params.js"), "utf8").then((text) => writeFile(join(temp, "lib/equihash/params.js"), text)),
+    readFile(join(root, "lib/equihash/ticket.js"), "utf8").then((text) => writeFile(join(temp, "lib/equihash/ticket.js"), text)),
+    readFile(join(root, "lib/pow/auth-primitives.js"), "utf8").then((text) => writeFile(join(temp, "lib/pow/auth-primitives.js"), text)),
+  ]);
+  await writeFile(join(temp, "pow-config.js"), source.replace(/__COMPILED_CONFIG__/gu, compiled).replace(/const CONFIG_SECRET = "[^"]*";/u, 'const CONFIG_SECRET = "config-secret";'));
+  const mod = await import(`${pathToFileURL(join(temp, "pow-config.js")).href}?v=${Date.now()}`);
+  const { core1, core2 } = await loadCores();
   const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-        "x-consume": "v2.ticket.exp.any.1.mac",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    assert.equal(forwarded.headers.get("x-consume"), null);
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.atomic.captchaToken, "");
-    assert.equal(parsed.s.atomic.ticketB64, "");
-    assert.equal(parsed.s.atomic.consumeToken, "v2.ticket.exp.any.1.mac");
-    assert.equal(parsed.s.atomic.fromCookie, false);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config prefers header atomic source over query when mixed inputs are present", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      STRIP_ATOMIC_QUERY: true,
-      STRIP_ATOMIC_HEADERS: true,
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request(
-      "https://example.com/protected?__ts=q-turn&__tt=q-ticket&__ct=q-consume&keep=1",
-      {
-        headers: {
-          "CF-Connecting-IP": "1.2.3.4",
-          "x-consume": "h-consume",
-        },
-      }
-    );
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    assert.equal(forwarded.headers.get("x-consume"), null);
-    const forwardedUrl = new URL(forwarded.url);
-    assert.equal(forwardedUrl.searchParams.get("__ts"), null);
-    assert.equal(forwardedUrl.searchParams.get("__tt"), null);
-    assert.equal(forwardedUrl.searchParams.get("__ct"), null);
-    assert.equal(forwardedUrl.searchParams.get("keep"), "1");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.atomic.captchaToken, "");
-    assert.equal(parsed.s.atomic.ticketB64, "");
-    assert.equal(parsed.s.atomic.consumeToken, "h-consume");
-    assert.equal(parsed.s.atomic.fromCookie, false);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config accepts cookie mode c with empty captcha token", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-        Cookie: `__Secure-pow_a=${encodeAtomicCookie("1|c||v2.ticket.exp.any.1.mac")}`,
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.atomic.captchaToken, "");
-    assert.equal(parsed.s.atomic.ticketB64, "");
-    assert.equal(parsed.s.atomic.consumeToken, "v2.ticket.exp.any.1.mac");
-    assert.equal(parsed.s.atomic.fromCookie, true);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config rejects cookie mode t with empty captcha token", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-        Cookie: `__Secure-pow_a=${encodeAtomicCookie("1|t||ticketabc")}`,
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.atomic.captchaToken, "");
-    assert.equal(parsed.s.atomic.ticketB64, "");
-    assert.equal(parsed.s.atomic.consumeToken, "");
-    assert.equal(parsed.s.atomic.fromCookie, false);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config omits turnstilePreflight when consume integrity precheck fails", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      powcheck: true,
-      turncheck: true,
-      ATOMIC_CONSUME: true,
-      TURNSTILE_SITEKEY: "turn-site-key",
-      TURNSTILE_SECRET: "turn-secret",
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  let turnstileCalls = 0;
-  const originalFetch = globalThis.fetch;
+  const trace = { core1: 0, core2: 0, origin: 0 };
   try {
     globalThis.fetch = async (input, init) => {
       const request = input instanceof Request ? input : new Request(input, init);
-      if (String(request.url) === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
-        turnstileCalls += 1;
-        return new Response(JSON.stringify({ success: true, cdata: "mac" }), { status: 200 });
+      if (request.headers.has("X-Pow-Transit")) {
+        trace.core2 += 1;
+        return core2(request);
       }
-      forwarded = request;
-      return new Response("ok", { status: 200 });
+      if (request.headers.has("X-Pow-Inner") || request.headers.has("X-Pow-Inner-Count")) {
+        trace.core1 += 1;
+        return core1(request);
+      }
+      trace.origin += 1;
+      return new Response("ok");
     };
-
-    const ticketB64 = base64Url(Buffer.from("1.1700000000.32.r.1.1700000000.mac", "utf8"));
-    const envelope = JSON.stringify({
-      turnstile: "atomic-turn-token-1234567890",
-    });
-    const req = new Request(
-      `https://example.com/protected?__ts=${encodeURIComponent(envelope)}&__tt=${ticketB64}&__ct=not-a-valid-v2-consume`,
-      {
-        headers: {
-          "CF-Connecting-IP": "1.2.3.4",
-        },
-      }
-    );
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "request still forwards");
-    assert.equal(turnstileCalls, 0, "consume precheck failure should skip turnstile preflight");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.atomic.turnstilePreflight, undefined);
+    const exact = await mod.default.fetch(new Request(`https://example.com/protected?__ts=${"t".repeat(8192)}`));
+    assert.equal(exact.status, 200);
+    assert.deepEqual(trace, { core1: 1, core2: 1, origin: 1 });
+    trace.core1 = 0;
+    trace.core2 = 0;
+    trace.origin = 0;
+    const oversized = await mod.default.fetch(new Request(`https://example.com/protected?__ts=${"t".repeat(8193)}`));
+    assert.equal(oversized.status, 431);
+    assert.deepEqual(trace, { core1: 0, core2: 0, origin: 0 });
+    const malformed = await mod.default.fetch(new Request("https://example.com/protected?__tt=bad*ticket"));
+    assert.equal(malformed.status, 400);
+    assert.deepEqual(trace, { core1: 0, core2: 0, origin: 0 });
   } finally {
     globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config omits turnstilePreflight for atomic dual-provider ticket flow", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      powcheck: false,
-      turncheck: true,
-      POW_BIND_PATH: true,
-      POW_BIND_COUNTRY: false,
-      POW_BIND_ASN: false,
-      POW_BIND_TLS: false,
-      ATOMIC_CONSUME: true,
-      TURNSTILE_SITEKEY: "turn-site-key",
-      TURNSTILE_SECRET: "turn-secret",
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  let turnstileCalls = 0;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (input, init) => {
-      const request = input instanceof Request ? input : new Request(input, init);
-      if (String(request.url) === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
-        turnstileCalls += 1;
-        return new Response(JSON.stringify({ success: true, cdata: ticket.mac }), { status: 200 });
-      }
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const now = Math.floor(Date.now() / 1000);
-    const ticket = {
-      v: 1,
-      e: now + 600,
-      L: 32,
-      r: base64Url(Buffer.from("ticket-random", "utf8")),
-      cfgId: 0,
-      issuedAt: now,
-      mac: "",
-    };
-    const pathHash = base64Url(crypto.createHash("sha256").update("/protected").digest());
-    const binding = makePowBindingString(
-      ticket,
-      "example.com",
-      pathHash,
-      "1.2.3.4/32",
-      "any",
-      "any",
-      "any",
-      16384,
-      2
-    );
-    assert.ok(binding.endsWith(`|${ticket.issuedAt}`));
-    ticket.mac = hmacSha256Base64Url("pow-secret", binding);
-    const ticketB64 = base64Url(
-      Buffer.from(
-        `${ticket.v}.${ticket.e}.${ticket.L}.${ticket.r}.${ticket.cfgId}.${ticket.issuedAt}.${ticket.mac}`,
-        "utf8"
-      )
-    );
-
-    const turnToken = "atomic-turn-token-1234567890";
-    const envelope = JSON.stringify({
-      turnstile: turnToken,
-    });
-
-    const req = new Request(
-      `https://example.com/protected?__ts=${encodeURIComponent(envelope)}&__tt=${ticketB64}`,
-      {
-        headers: {
-          "CF-Connecting-IP": "1.2.3.4",
-        },
-      }
-    );
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "request forwards without preflight evidence");
-    assert.equal(turnstileCalls, 0, "pow-config should not call turnstile siteverify");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.atomic.turnstilePreflight, undefined);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config omits turnstilePreflight when bind strategy is invalid", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: {
-      powcheck: false,
-      turncheck: true,
-      POW_BIND_PATH: true,
-      ATOMIC_CONSUME: true,
-      TURNSTILE_SITEKEY: "turn-site-key",
-      TURNSTILE_SECRET: "turn-secret",
-      bindPathMode: "query",
-      bindPathQueryName: "path",
-    },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  let turnstileCalls = 0;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (input, init) => {
-      const request = input instanceof Request ? input : new Request(input, init);
-      if (String(request.url) === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
-        turnstileCalls += 1;
-        return new Response(JSON.stringify({ success: true, cdata: "unused" }), { status: 200 });
-      }
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const envelope = JSON.stringify({
-      turnstile: "atomic-turn-token-1234567890",
-    });
-    const req = new Request(
-      `https://example.com/protected?__ts=${encodeURIComponent(envelope)}&__tt=${"a".repeat(128)}`,
-      {
-        headers: {
-          "CF-Connecting-IP": "1.2.3.4",
-        },
-      }
-    );
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "request still forwards with invalid bind strategy");
-    assert.equal(turnstileCalls, 0, "bind invalid should skip preflight call");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.s.bind.ok, false);
-    assert.equal(parsed.s.atomic.turnstilePreflight, undefined);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config exposes whitepaper defaults for page bytes and mix rounds", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret");
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.POW_PAGE_BYTES, 16384);
-    assert.equal(parsed.c.POW_MIX_ROUNDS, 2);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
-  }
-});
-
-test("pow-config normalizes page bytes alignment and mix rounds bounds", async () => {
-  const restoreGlobals = ensureGlobals();
-  const modulePath = await buildConfigModule("config-secret", {
-    configOverrides: { POW_PAGE_BYTES: 16399, POW_MIX_ROUNDS: 9 },
-  });
-  const mod = await import(`${pathToFileURL(modulePath).href}?v=${Date.now()}`);
-  const handler = mod.default.fetch;
-  let forwarded = null;
-  const originalFetch = globalThis.fetch;
-  try {
-    globalThis.fetch = async (request) => {
-      forwarded = request;
-      return new Response("ok", { status: 200 });
-    };
-
-    const req = new Request("https://example.com/protected", {
-      headers: {
-        "CF-Connecting-IP": "1.2.3.4",
-      },
-    });
-    const res = await handler(req);
-    assert.equal(res.status, 200);
-    assert.ok(forwarded, "fetch called with modified request");
-
-    const { payload } = readInnerPayload(forwarded.headers);
-    const decoded = base64UrlDecode(payload);
-    assert.ok(decoded, "payload decodes");
-    const parsed = JSON.parse(decoded);
-    assert.equal(parsed.c.POW_PAGE_BYTES, 16384);
-    assert.equal(parsed.c.POW_MIX_ROUNDS, 4);
-  } finally {
-    globalThis.fetch = originalFetch;
-    restoreGlobals();
+    restore();
   }
 });

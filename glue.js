@@ -33,20 +33,19 @@ const I18N = {
     turnstile_expired: "Turnstile Expired",
     loading_solver: "Loading solver...",
     worker_missing: "Worker Missing",
+    solver_missing: "Solver Missing",
     bad_binding: "Bad Binding",
-    computing_hash_chain: "Computing hash chain...",
-    screening_hash_attempt: "Screening hash (attempt {n})...",
-    screening_hash_done: "Screening hash... {done}",
-    computing_hash_chain_done: "Computing hash chain... {done}",
-    submitting_commit: "Submitting commit...",
-    requesting_challenge: "Requesting challenge...",
     challenge_failed: "Challenge Failed",
-    verifying_batch: "Verifying #{round} ({count})...",
+    challenge_timeout: "Challenge Timeout",
     verifying_done: "Verifying... {done}",
     pow_done: "PoW... {done}",
     no_challenge: "No Challenge",
-    turnstile_solved_pow: "Turnstile solved. Starting PoW...",
     consume_missing: "Consume Missing",
+    no_workers: "No workers",
+    worker_error: "Worker error",
+    worker_message_error: "Worker message error",
+    solving_equihash_progress: "Solving Equihash ({elapsed}s elapsed, {remaining}s left, rows {rows}, solve {ewmaSolveMs}ms)...",
+    solving_equihash_done: "Solving Equihash... {done}",
     access_granted_close: "Access granted. You may close this window.",
     access_granted_redirecting: "Access granted. {redirect}",
     session_expired_reload: "Session expired. Reloading...",
@@ -54,10 +53,6 @@ const I18N = {
     done: "done",
     redirecting: "Redirecting...",
     failed: "Failed",
-    no_workers: "No workers",
-    commit_failed: "Commit failed",
-    worker_error: "Worker error",
-    worker_message_error: "Worker message error",
   },
   zh: {
     title_verifying: "验证中...",
@@ -82,20 +77,18 @@ const I18N = {
     turnstile_expired: "Turnstile 已过期",
     loading_solver: "加载求解器...",
     worker_missing: "Worker 不可用",
+    solver_missing: "求解器不可用",
     bad_binding: "绑定无效",
-    computing_hash_chain: "计算哈希链...",
-    screening_hash_attempt: "筛选哈希（第 {n} 次）...",
-    screening_hash_done: "筛选哈希... {done}",
-    computing_hash_chain_done: "计算哈希链... {done}",
-    submitting_commit: "提交 Commit...",
-    requesting_challenge: "请求 Challenge...",
-    challenge_failed: "Challenge 失败",
-    verifying_batch: "校验第 {round} 轮（{count}）...",
-    verifying_done: "校验中... {done}",
+    challenge_failed: "挑战失败",
+    challenge_timeout: "挑战超时",
+    solving_equihash_progress: "Equihash 求解（已用 {elapsed}s，剩余 {remaining}s，rows {rows}，求解 {ewmaSolveMs}ms）...",
+    solving_equihash_done: "Equihash 求解... {done}",
     pow_done: "PoW... {done}",
-    no_challenge: "没有 Challenge",
-    turnstile_solved_pow: "Turnstile 已完成，开始 PoW...",
-    consume_missing: "缺少 Consume",
+    no_challenge: "没有挑战",
+    consume_missing: "缺少 consume",
+    no_workers: "没有可用的 worker",
+    worker_error: "Worker 错误",
+    worker_message_error: "Worker 消息错误",
     access_granted_close: "已通过验证，可关闭此窗口。",
     access_granted_redirecting: "已通过验证。{redirect}",
     session_expired_reload: "会话已过期，正在刷新...",
@@ -103,10 +96,6 @@ const I18N = {
     done: "完成",
     redirecting: "正在跳转...",
     failed: "失败",
-    no_workers: "没有可用的 worker",
-    commit_failed: "Commit 失败",
-    worker_error: "Worker 错误",
-    worker_message_error: "Worker 消息错误",
   },
   ja: {
     title_verifying: "確認中...",
@@ -131,20 +120,18 @@ const I18N = {
     turnstile_expired: "Turnstile の有効期限切れ",
     loading_solver: "ソルバーを読み込み中...",
     worker_missing: "Worker が見つかりません",
+    solver_missing: "ソルバーが見つかりません",
     bad_binding: "無効なバインド",
-    computing_hash_chain: "ハッシュチェーンを計算中...",
-    screening_hash_attempt: "ハッシュを選別中（{n} 回目）...",
-    screening_hash_done: "ハッシュ選別... {done}",
-    computing_hash_chain_done: "ハッシュチェーン... {done}",
-    submitting_commit: "Commit を送信中...",
-    requesting_challenge: "Challenge を要求中...",
-    challenge_failed: "Challenge 失敗",
-    verifying_batch: "検証 #{round}（{count}）...",
-    verifying_done: "検証中... {done}",
+    challenge_failed: "チャレンジ失敗",
+    challenge_timeout: "チャレンジのタイムアウト",
+    solving_equihash_progress: "Equihash を解いています（経過 {elapsed}s、残り {remaining}s、rows {rows}、解決 {ewmaSolveMs}ms）...",
+    solving_equihash_done: "Equihash を解決... {done}",
     pow_done: "PoW... {done}",
-    no_challenge: "No Challenge",
-    turnstile_solved_pow: "Turnstile 解決。PoW を開始...",
-    consume_missing: "Consume がありません",
+    no_challenge: "チャレンジなし",
+    consume_missing: "consume がありません",
+    no_workers: "利用可能な worker がありません",
+    worker_error: "Worker エラー",
+    worker_message_error: "Worker メッセージエラー",
     access_granted_close: "認証に成功しました。このウィンドウを閉じてください。",
     access_granted_redirecting: "認証に成功しました。{redirect}",
     session_expired_reload: "セッション期限切れ。再読み込み中...",
@@ -152,10 +139,6 @@ const I18N = {
     done: "完了",
     redirecting: "リダイレクト中...",
     failed: "失敗",
-    no_workers: "利用可能な worker がありません",
-    commit_failed: "Commit 失敗",
-    worker_error: "Worker エラー",
-    worker_message_error: "Worker メッセージエラー",
   },
   zh_hant: {
     title_verifying: "驗證中...",
@@ -180,20 +163,18 @@ const I18N = {
     turnstile_expired: "Turnstile 已過期",
     loading_solver: "載入求解器...",
     worker_missing: "Worker 不可用",
-    bad_binding: "綁定無效",
-    computing_hash_chain: "計算雜湊鏈...",
-    screening_hash_attempt: "篩選雜湊（第 {n} 次）...",
-    screening_hash_done: "篩選雜湊... {done}",
-    computing_hash_chain_done: "計算雜湊鏈... {done}",
-    submitting_commit: "提交 Commit...",
-    requesting_challenge: "請求 Challenge...",
-    challenge_failed: "Challenge 失敗",
-    verifying_batch: "校驗第 {round} 輪（{count}）...",
-    verifying_done: "校驗中... {done}",
+    solver_missing: "求解器不可用",
+    bad_binding: "繫結無效",
+    challenge_failed: "挑戰失敗",
+    challenge_timeout: "挑戰逾時",
+    solving_equihash_progress: "Equihash 求解（已用 {elapsed}s，剩餘 {remaining}s，rows {rows}，求解 {ewmaSolveMs}ms）...",
+    solving_equihash_done: "Equihash 求解... {done}",
     pow_done: "PoW... {done}",
-    no_challenge: "沒有 Challenge",
-    turnstile_solved_pow: "Turnstile 已完成，開始 PoW...",
-    consume_missing: "缺少 Consume",
+    no_challenge: "沒有挑戰",
+    consume_missing: "缺少 consume",
+    no_workers: "沒有可用的 worker",
+    worker_error: "Worker 錯誤",
+    worker_message_error: "Worker 訊息錯誤",
     access_granted_close: "已通過驗證，可關閉此視窗。",
     access_granted_redirecting: "已通過驗證。{redirect}",
     session_expired_reload: "工作階段已過期，正在重新整理...",
@@ -201,10 +182,6 @@ const I18N = {
     done: "完成",
     redirecting: "正在跳轉...",
     failed: "失敗",
-    no_workers: "沒有可用的 worker",
-    commit_failed: "Commit 失敗",
-    worker_error: "Worker 錯誤",
-    worker_message_error: "Worker 訊息錯誤",
   },
   ko: {
     title_verifying: "확인 중...",
@@ -229,20 +206,18 @@ const I18N = {
     turnstile_expired: "Turnstile 만료됨",
     loading_solver: "솔버 로드 중...",
     worker_missing: "Worker 없음",
+    solver_missing: "솔버 없음",
     bad_binding: "잘못된 바인딩",
-    computing_hash_chain: "해시 체인 계산 중...",
-    screening_hash_attempt: "해시 검사 중 (시도 {n})...",
-    screening_hash_done: "해시 검사... {done}",
-    computing_hash_chain_done: "해시 체인 계산... {done}",
-    submitting_commit: "Commit 제출 중...",
-    requesting_challenge: "Challenge 요청 중...",
-    challenge_failed: "Challenge 실패",
-    verifying_batch: "검증 #{round} ({count})...",
-    verifying_done: "검증 중... {done}",
+    challenge_failed: "챌린지 실패",
+    challenge_timeout: "챌린지 시간 초과",
+    solving_equihash_progress: "Equihash 계산 중 ({elapsed}s 경과, {remaining}s 남음, rows {rows}, 계산 {ewmaSolveMs}ms)...",
+    solving_equihash_done: "Equihash 계산... {done}",
     pow_done: "PoW... {done}",
-    no_challenge: "No Challenge",
-    turnstile_solved_pow: "Turnstile 해결 완료. PoW 시작...",
-    consume_missing: "Consume 누락",
+    no_challenge: "챌린지 없음",
+    consume_missing: "consume 없음",
+    no_workers: "사용 가능한 worker 없음",
+    worker_error: "Worker 오류",
+    worker_message_error: "Worker 메시지 오류",
     access_granted_close: "접근이 허용되었습니다. 이 창을 닫아도 됩니다.",
     access_granted_redirecting: "접근이 허용되었습니다. {redirect}",
     session_expired_reload: "세션이 만료되었습니다. 다시 로드합니다...",
@@ -250,10 +225,6 @@ const I18N = {
     done: "완료",
     redirecting: "이동 중...",
     failed: "실패",
-    no_workers: "사용 가능한 worker 없음",
-    commit_failed: "Commit 실패",
-    worker_error: "Worker 오류",
-    worker_message_error: "Worker 메시지 오류",
   },
   fr: {
     title_verifying: "Vérification...",
@@ -278,20 +249,18 @@ const I18N = {
     turnstile_expired: "Turnstile expiré",
     loading_solver: "Chargement du solveur...",
     worker_missing: "Worker indisponible",
+    solver_missing: "Solveur indisponible",
     bad_binding: "Liaison invalide",
-    computing_hash_chain: "Calcul de la chaîne de hachage...",
-    screening_hash_attempt: "Vérification du hachage (tentative {n})...",
-    screening_hash_done: "Vérification du hachage... {done}",
-    computing_hash_chain_done: "Calcul de la chaîne de hachage... {done}",
-    submitting_commit: "Envoi du commit...",
-    requesting_challenge: "Demande du challenge...",
-    challenge_failed: "Échec du challenge",
-    verifying_batch: "Vérification #{round} ({count})...",
-    verifying_done: "Vérification... {done}",
+    challenge_failed: "Échec du défi",
+    challenge_timeout: "Délai du défi dépassé",
+    solving_equihash_progress: "Résolution Equihash ({elapsed}s écoulées, {remaining}s restantes, lignes {rows}, résolution {ewmaSolveMs}ms)...",
+    solving_equihash_done: "Résolution Equihash... {done}",
     pow_done: "PoW... {done}",
-    no_challenge: "Aucun challenge",
-    turnstile_solved_pow: "Turnstile validé. Démarrage du PoW...",
+    no_challenge: "Aucun défi",
     consume_missing: "Consume manquant",
+    no_workers: "Aucun worker",
+    worker_error: "Erreur du worker",
+    worker_message_error: "Erreur de message du worker",
     access_granted_close: "Accès autorisé. Vous pouvez fermer cette fenêtre.",
     access_granted_redirecting: "Accès autorisé. {redirect}",
     session_expired_reload: "Session expirée. Rechargement...",
@@ -299,10 +268,6 @@ const I18N = {
     done: "terminé",
     redirecting: "Redirection...",
     failed: "Échec",
-    no_workers: "Aucun worker",
-    commit_failed: "Échec du commit",
-    worker_error: "Erreur du worker",
-    worker_message_error: "Erreur de message du worker",
   },
 };
 
@@ -380,12 +345,13 @@ const ERROR_KEY_BY_MESSAGE = {
   "Turnstile Expired": "turnstile_expired",
   "Turnstile Rejected": "turnstile_rejected",
   "Worker Missing": "worker_missing",
+  "Solver Missing": "solver_missing",
   "Bad Binding": "bad_binding",
   "Challenge Failed": "challenge_failed",
+  "Challenge Timeout": "challenge_timeout",
   "No Challenge": "no_challenge",
   "Consume Missing": "consume_missing",
   "No workers": "no_workers",
-  "Commit failed": "commit_failed",
   "Worker error": "worker_error",
   "Worker message error": "worker_message_error",
 };
@@ -403,56 +369,289 @@ const localizeErrorMessage = (message) => {
   return escapeHtml(key ? t(key) : message);
 };
 
-const encoder = new TextEncoder();
-const base64UrlEncodeNoPad = (bytes) =>
-  btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-const sha256Bytes = async (value) => {
-  const bytes = encoder.encode(String(value ?? ""));
-  const buf = await crypto.subtle.digest("SHA-256", bytes);
-  return new Uint8Array(buf);
-};
-const captchaTagV1 = async (turnToken) => {
-  const material = `ctag|v1|t=${turnToken}`;
-  return base64UrlEncodeNoPad((await sha256Bytes(material)).slice(0, 12));
-};
-
-const parseCanonicalCaptchaEnvelope = (captchaToken) => {
-  if (typeof captchaToken !== "string") return null;
-  const raw = captchaToken.trim();
-  if (!raw) return null;
-  let envelope;
-  try {
-    envelope = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-  if (!envelope || typeof envelope !== "object" || Array.isArray(envelope)) return null;
-  if (typeof envelope.turnstile !== "string" || !envelope.turnstile) return null;
-  if (Object.keys(envelope).some((key) => key !== "turnstile")) return null;
-  return { turnstile: envelope.turnstile };
-};
-
 const parseAtomicCfg = (raw) => {
   const parts = typeof raw === "string" && raw ? raw.split("|") : [];
   return {
     atomic: parts[0] === "1",
-    q: {
-      ts: parts[1] || "__ts",
-      tt: parts[2] || "__tt",
-      ct: parts[3] || "__ct",
-    },
-    h: {
-      ts: parts[4] || "x-turnstile",
-      tt: parts[5] || "x-ticket",
-      ct: parts[6] || "x-consume",
-    },
+    q: { ts: parts[1] || "__ts", tt: parts[2] || "__tt", ct: parts[3] || "__ct" },
+    h: { ts: parts[4] || "x-turnstile", tt: parts[5] || "x-ticket", ct: parts[6] || "x-consume" },
     c: parts[7] || "__Secure-pow_a",
   };
 };
 
 const normalizeApiPrefix = (prefix) => {
   if (!prefix || typeof prefix !== "string") return "/__pow";
-  return prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
+  const trimmed = prefix.trim();
+  if (!trimmed) return "/__pow";
+  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return withSlash.replace(/\/+$/u, "") || "/__pow";
+};
+
+const encodeB64UrlBytes = (bytes) => {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/gu, "");
+};
+
+const sha256Bytes = async (value) => new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value ?? ""))));
+
+const captchaTagV1 = async (turnToken) =>
+  encodeB64UrlBytes((await sha256Bytes(`ctag|v1|t=${typeof turnToken === "string" ? turnToken : ""}`)).slice(0, 12));
+
+const deriveEquihashSeed = async (ticketB64, pathHash, captchaTag) =>
+  sha256Bytes(JSON.stringify(["equihash-seed-v1", ticketB64, pathHash, captchaTag]));
+
+const formatSeconds = (valueMs) => {
+  const ms = Number(valueMs);
+  return Number.isFinite(ms) && ms >= 0 ? (ms / 1000).toFixed(1) : "0.0";
+};
+
+const formatEquihashProgress = (progress) => {
+  const rows = Math.max(1, Math.floor(Number(progress && progress.rows) || 1));
+  const ewmaSolveMs = Math.max(0, Math.round(Number(progress && progress.ewmaSolveMs) || 0));
+  return t("solving_equihash_progress", {
+    elapsed: formatSeconds(progress && progress.elapsedMs),
+    remaining: formatSeconds(progress && progress.remainingMs),
+    rows,
+    ewmaSolveMs,
+  });
+};
+
+const parseBootstrapEq = (nRaw, kRaw) => {
+  const n = Number(nRaw);
+  const k = Number(kRaw);
+  if (!Number.isSafeInteger(n) || !Number.isSafeInteger(k) || n < 8 || n > 256 || n % 2 !== 0 || k < 2 || k > 8 || n % (k + 1) !== 0) return null;
+  return { n, k };
+};
+
+const parseBootstrap = (bootstrapB64) => {
+  const raw = decodeB64Url(String(bootstrapB64 || ""));
+  if (!raw) return null;
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const ticketB64 = typeof parsed.ticketB64 === "string" ? parsed.ticketB64 : "";
+  const pathHash = typeof parsed.pathHash === "string" ? parsed.pathHash : "";
+  const apiPrefix = normalizeApiPrefix(parsed.apiPrefix);
+  const eq = parseBootstrapEq(parsed.eq && parsed.eq.n, parsed.eq && parsed.eq.k);
+  const issuedAt = Number(parsed.issuedAt);
+  const expireAt = Number(parsed.expireAt);
+  const mask = Number(parsed.mask);
+  if (!ticketB64 || !pathHash || !eq || !Number.isSafeInteger(issuedAt) || !Number.isSafeInteger(expireAt) || expireAt <= issuedAt || !Number.isSafeInteger(mask) || mask < 1 || mask > 3) return null;
+  return { ticketB64, pathHash, apiPrefix, eq, issuedAt, expireAt, mask };
+};
+
+const throwVerifyDeny = (reason) => {
+  const hint = String(reason || "stale").trim().toLowerCase() || "stale";
+  const error = new Error(`verify denied: ${hint}`);
+  error.name = "ApiError";
+  error.status = 403;
+  error.hint = hint;
+  throw error;
+};
+
+const SUBMISSION_RESERVE_MS = 1500;
+const TURNSTILE_TOKEN_TTL_MS = 300000;
+const monotonicNow = () =>
+  typeof performance !== "undefined" && typeof performance.now === "function"
+    ? performance.now()
+    : Date.now();
+
+const createTokenState = () => ({
+  token: "",
+  expiresAtMs: Infinity,
+  expired: false,
+  onExpire: null,
+  widgetCleanup: null,
+});
+
+const createLifecycleError = (reason) => {
+  const error = new Error(`challenge lifecycle: ${reason}`);
+  error.name = "PowLifecycleError";
+  error.reason = reason;
+  return error;
+};
+
+const createChallengeLifecycle = (expireAt, tokenState) => {
+  const startedAtMs = monotonicNow();
+  const numericExpireAt = Number(expireAt);
+  const ticketRemainingMs = numericExpireAt === Infinity ? Infinity : numericExpireAt * 1000 - Date.now();
+  const ticketDeadlineMs = Number.isFinite(ticketRemainingMs)
+    ? startedAtMs + Math.max(0, ticketRemainingMs)
+    : Infinity;
+  const deadlineAtMs = () => Math.min(ticketDeadlineMs, Number(tokenState?.expiresAtMs) || Infinity);
+  let stopped = false;
+  let disposed = false;
+  let reason = "";
+  let computeDeadlineMs = null;
+  let rejectStop;
+  const stopPromise = new Promise((_, reject) => { rejectStop = reject; });
+  stopPromise.catch(() => {});
+  const cleanups = new Set();
+  const runCleanups = () => {
+    for (const cleanup of cleanups) {
+      try { cleanup(); } catch {}
+    }
+    cleanups.clear();
+  };
+  const stop = (nextReason) => {
+    if (stopped || disposed) return;
+    stopped = true;
+    reason = nextReason;
+    runCleanups();
+    rejectStop(createLifecycleError(nextReason));
+  };
+  const addCleanup = (cleanup) => {
+    if (typeof cleanup !== "function") return () => {};
+    if (stopped || disposed) {
+      try { cleanup(); } catch {}
+      return () => {};
+    }
+    cleanups.add(cleanup);
+    return () => cleanups.delete(cleanup);
+  };
+  const remainingActualMs = () => Math.max(0, Math.floor(deadlineAtMs() - monotonicNow()));
+  const remainingComputeMs = () => Math.max(0, remainingActualMs() - SUBMISSION_RESERVE_MS);
+  const check = () => {
+    if (!stopped && !disposed) {
+      const now = monotonicNow();
+      if (tokenState?.expired || now >= deadlineAtMs()) stop("expired");
+      else if (computeDeadlineMs !== null && now >= computeDeadlineMs) stop("compute");
+    }
+    return reason;
+  };
+  const ensureActive = () => {
+    check();
+    if (stopped) throw createLifecycleError(reason);
+  };
+  const race = (value) => Promise.race([Promise.resolve(value), stopPromise]);
+  let timer;
+  if (typeof setInterval === "function") timer = setInterval(check, 25);
+
+  const onPageHide = (event) => {
+    if (!event || event.persisted !== true) stop("teardown");
+  };
+  const onPageShow = () => check();
+  const onVisibilityChange = () => {
+    if (typeof document !== "undefined" && document.hidden === false) check();
+  };
+  if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pageshow", onPageShow);
+  }
+  if (typeof document !== "undefined" && typeof document.addEventListener === "function") {
+    document.addEventListener("visibilitychange", onVisibilityChange);
+  }
+  const detach = () => {
+    if (timer !== undefined) clearInterval(timer);
+    if (typeof window !== "undefined" && typeof window.removeEventListener === "function") {
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
+    }
+    if (typeof document !== "undefined" && typeof document.removeEventListener === "function") {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    }
+  };
+  const dispose = () => {
+    if (disposed) return;
+    disposed = true;
+    detach();
+    runCleanups();
+  };
+  const armComputeDeadline = () => {
+    computeDeadlineMs = deadlineAtMs() - SUBMISSION_RESERVE_MS;
+    check();
+  };
+  const disarmComputeDeadline = () => {
+    computeDeadlineMs = null;
+  };
+  const refreshComputeDeadline = () => {
+    if (computeDeadlineMs !== null) {
+      computeDeadlineMs = deadlineAtMs() - SUBMISSION_RESERVE_MS;
+      check();
+    }
+  };
+  check();
+  return {
+    addCleanup,
+    armComputeDeadline,
+    check,
+    deadlineAtMs,
+    dispose,
+    disarmComputeDeadline,
+    ensureActive,
+    race,
+    reason: () => reason,
+    remainingActualMs,
+    remainingComputeMs,
+    refreshComputeDeadline,
+    stop,
+  };
+};
+
+const postVerify = async (url, body, lifecycle = null) => {
+  const result = await postJson(url, body, 3, lifecycle);
+  if (!result || typeof result !== "object" || Array.isArray(result) || result.ok !== true) throwVerifyDeny(result && result.reason);
+  return result;
+};
+
+const createWorkerRpc = (worker, onProgress) => {
+  let rid = 0;
+  const pending = new Map();
+  let disposed = false;
+  const rejectAll = (error) => {
+    for (const entry of pending.values()) entry.reject(error);
+    pending.clear();
+  };
+  const handleMessage = (event) => {
+    if (disposed) return;
+    const data = event && event.data ? event.data : {};
+    if (data.type === "PROGRESS") {
+      if (typeof onProgress === "function") onProgress(data);
+      return;
+    }
+    const entry = pending.get(data.rid);
+    if (!entry) return;
+    pending.delete(data.rid);
+    if (data.type === "ERROR") entry.reject(new Error(data.message || "Worker error"));
+    else entry.resolve(data);
+  };
+  worker.addEventListener("message", handleMessage);
+  worker.addEventListener("messageerror", () => rejectAll(new Error("Worker message error")));
+  worker.addEventListener("error", () => rejectAll(new Error("Worker error")));
+  const call = (type, payload, transfer = []) => {
+    const id = ++rid;
+    return new Promise((resolve, reject) => {
+      if (disposed) {
+        reject(new Error("Worker disposed"));
+        return;
+      }
+      pending.set(id, { resolve, reject });
+      try {
+        worker.postMessage({ ...(payload || {}), type, rid: id }, transfer);
+      } catch (error) {
+        pending.delete(id);
+        reject(error);
+      }
+    });
+  };
+  const cancel = () => {
+    if (disposed) return;
+    try { worker.postMessage({ type: "CANCEL" }); } catch {}
+  };
+  const dispose = () => {
+    if (disposed) return;
+    cancel();
+    disposed = true;
+    rejectAll(new Error("Worker disposed"));
+    try { worker.postMessage({ type: "DISPOSE" }); } catch {}
+    try { worker.terminate(); } catch {}
+  };
+  return { call, cancel, dispose };
 };
 
 const STALE_RELOAD_STORAGE_KEY = "__pow_stale_reload_v1";
@@ -545,33 +744,50 @@ const isNetworkTransportError = (err) => {
   return /(network|fetch|connection|reset|econn|timed?\s*out|stream)/.test(msg);
 };
 
-const postJson = async (url, body, retries = 3) => {
-  for (let i = 0; i <= retries; i++) {
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body || {}),
-      });
-      if (!res.ok) {
-        throw buildApiError(url, res);
-      }
+const postJson = async (url, body, retries = 3, lifecycle = null) => {
+  const abortController = lifecycle && typeof AbortController === "function" ? new AbortController() : null;
+  const removeCleanup = lifecycle?.addCleanup(() => {
+    try { abortController?.abort(); } catch {}
+  }) || (() => {});
+  try {
+    for (let i = 0; i <= retries; i++) {
       try {
-        return await res.json();
-      } catch {
-        return {};
+        const request = fetch(url, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body || {}),
+          ...(abortController ? { signal: abortController.signal } : {}),
+        });
+        const res = lifecycle ? await lifecycle.race(request) : await request;
+        if (!res.ok) {
+          throw buildApiError(url, res);
+        }
+        try {
+          const parsed = res.json();
+          const result = lifecycle ? await lifecycle.race(parsed) : await parsed;
+          return result;
+        } catch (error) {
+          if (error?.name === "PowLifecycleError") throw error;
+          if (isNetworkTransportError(error)) throw error;
+          return {};
+        }
+      } catch (err) {
+        if (isApiError(err)) throw err;
+        if (lifecycle?.reason()) throw err;
+        if (!isNetworkTransportError(err)) throw err;
+        if (i === retries) throw err;
+        const delay = 500 * Math.pow(2, i);
+        log(t("connection_retry", { ms: delay }));
+        const wait = new Promise((r) => setTimeout(r, delay));
+        if (lifecycle) await lifecycle.race(wait);
+        else await wait;
       }
-    } catch (err) {
-      if (isApiError(err)) throw err;
-      if (!isNetworkTransportError(err)) throw err;
-      if (i === retries) throw err;
-      const delay = 500 * Math.pow(2, i);
-      log(t("connection_retry", { ms: delay }));
-      await new Promise((r) => setTimeout(r, delay));
     }
+    return {};
+  } finally {
+    removeCleanup();
   }
-  return {};
 };
 
 const setAtomicCookie = (name, value, maxAge, path) => {
@@ -639,65 +855,6 @@ const postAtomicMessage = (payload) => {
     postTo(window.parent);
   }
 };
-
-const createWorkerRpc = (worker, onProgress) => {
-  let rid = 0;
-  const pending = new Map();
-  const rejectAll = (err) => {
-    for (const entry of pending.values()) {
-      entry.reject(err);
-    }
-    pending.clear();
-  };
-  const handleMessage = (event) => {
-    const data = event && event.data ? event.data : {};
-    if (data.type === "PROGRESS") {
-      if (typeof onProgress === "function") onProgress(data);
-      return;
-    }
-    const entry = pending.get(data.rid);
-    if (!entry) return;
-    pending.delete(data.rid);
-    if (data.type === "ERROR") {
-      entry.reject(new Error(data.message || "Worker error"));
-      return;
-    }
-    entry.resolve(data);
-  };
-  worker.addEventListener("message", handleMessage);
-  worker.addEventListener("messageerror", () => {
-    rejectAll(new Error("Worker message error"));
-  });
-  worker.addEventListener("error", () => {
-    rejectAll(new Error("Worker error"));
-  });
-
-  const call = (type, payload) => {
-    const id = ++rid;
-    return new Promise((resolve, reject) => {
-      pending.set(id, { resolve, reject });
-      worker.postMessage({ ...(payload || {}), type, rid: id });
-    });
-  };
-
-  const cancel = () => {
-    try {
-      worker.postMessage({ type: "CANCEL" });
-    } catch {}
-  };
-
-  const dispose = () => {
-    cancel();
-    rejectAll(new Error("Worker disposed"));
-    try {
-      worker.postMessage({ type: "DISPOSE" });
-    } catch {}
-    worker.terminate();
-  };
-
-  return { call, cancel, dispose };
-};
-
 
 const initUi = () => {
   const style = document.createElement("style");
@@ -1242,21 +1399,27 @@ const getTicketMac = (ticketB64) => {
   const raw = decodeB64Url(String(ticketB64 || ""));
   if (!raw) return null;
   const parts = raw.split(".");
-  if (parts.length !== 7) return null;
-  return parts[6] || null;
+  if (parts.length !== 9 || parts[0] !== "5") return null;
+  return parts[8] || null;
 };
 
 let turnstilePromise;
+let turnstileScript = null;
 const loadTurnstile = () => {
   if (window.turnstile) return Promise.resolve(window.turnstile);
   if (turnstilePromise) return turnstilePromise;
   turnstilePromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
+    turnstileScript = script;
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve(window.turnstile);
+    script.onload = () => {
+      turnstileScript = null;
+      resolve(window.turnstile);
+    };
     script.onerror = () => {
+      turnstileScript = null;
       turnstilePromise = null;
       reject(new Error("Turnstile Load Failed"));
     };
@@ -1265,11 +1428,25 @@ const loadTurnstile = () => {
   return turnstilePromise;
 };
 
-const runTurnstile = async (ticketB64, sitekey, submitToken) => {
+const cancelTurnstileLoad = () => {
+  if (!turnstileScript) return;
+  const script = turnstileScript;
+  turnstileScript = null;
+  turnstilePromise = null;
+  script.onload = null;
+  script.onerror = null;
+  try { script.remove(); } catch {}
+};
+
+const runTurnstile = async (ticketB64, sitekey, submitToken, tokenState, lifecycle) => {
+  lifecycle?.ensureActive();
   const ticketMac = getTicketMac(ticketB64);
   if (!ticketMac) throw new Error("Bad Ticket");
   log(t("loading_turnstile"));
-  const ts = await loadTurnstile();
+  const removeLoadCleanup = lifecycle?.addCleanup(cancelTurnstileLoad) || (() => {});
+  const ts = lifecycle ? await lifecycle.race(loadTurnstile()) : await loadTurnstile();
+  removeLoadCleanup();
+  lifecycle?.ensureActive();
   if (!ts || typeof ts.render !== "function") {
     throw new Error("Turnstile Missing");
   }
@@ -1306,7 +1483,28 @@ const runTurnstile = async (ticketB64, sitekey, submitToken) => {
     });
   let tokenPromise = nextToken();
   let widgetId = null;
+  let widgetRemoved = false;
+  const removeWidget = () => {
+    if (widgetRemoved) return;
+    hideTurnstile();
+    if (el) el.innerHTML = "";
+    if (ts && typeof ts.remove === "function" && widgetId !== null) {
+      try { ts.remove(widgetId); } catch {}
+      widgetRemoved = true;
+    }
+  };
+  if (tokenState) tokenState.widgetCleanup = removeWidget;
+  lifecycle?.addCleanup(removeWidget);
+  const markTokenExpired = () => {
+    if (tokenState && tokenState.token) {
+      tokenState.expired = true;
+      tokenState.expiresAtMs = monotonicNow();
+      if (typeof tokenState.onExpire === "function") tokenState.onExpire();
+    }
+    if (tokenReject) tokenReject(new Error("Turnstile Expired"));
+  };
   try {
+    lifecycle?.ensureActive();
     widgetId = ts.render(container, {
       sitekey,
       theme: "dark",
@@ -1315,11 +1513,24 @@ const runTurnstile = async (ticketB64, sitekey, submitToken) => {
       "before-interactive-callback": showTurnstile,
       "after-interactive-callback": hideTurnstile,
       callback: (t) => {
+        if (tokenState) {
+          const nextToken = typeof t === "string" ? t : "";
+          if (!tokenState.token) {
+            tokenState.token = nextToken;
+            tokenState.expired = false;
+            tokenState.expiresAtMs = monotonicNow() + TURNSTILE_TOKEN_TTL_MS;
+            lifecycle?.refreshComputeDeadline();
+          } else if (tokenState.token !== nextToken) {
+            tokenState.expired = true;
+            tokenState.expiresAtMs = monotonicNow();
+            if (typeof tokenState.onExpire === "function") tokenState.onExpire();
+          }
+        }
         hideTurnstile();
         if (tokenResolve) tokenResolve(t);
       },
       "error-callback": () => tokenReject && tokenReject(new Error("Turnstile Failed")),
-      "expired-callback": () => tokenReject && tokenReject(new Error("Turnstile Expired")),
+      "expired-callback": markTokenExpired,
     });
   } catch (e) {
     throw e;
@@ -1346,7 +1557,7 @@ const runTurnstile = async (ticketB64, sitekey, submitToken) => {
         update(submitLine, t("submitting_turnstile_done", { done: doneMark() }));
       }
       log(t("turnstile_done", { done: doneMark() }));
-      if (el) {
+      if (el && !tokenState) {
         hideTurnstile();
         setTimeout(() => {
           if (el.classList.contains("hide")) {
@@ -1354,11 +1565,7 @@ const runTurnstile = async (ticketB64, sitekey, submitToken) => {
           }
         }, 400);
       }
-      if (ts && typeof ts.remove === "function" && widgetId !== null) {
-        try {
-          ts.remove(widgetId);
-        } catch {}
-      }
+      if (!tokenState) removeWidget();
       return token;
     } catch (e) {
       throw e;
@@ -1375,7 +1582,7 @@ const buildCaptchaEnvelope = (tokens) => {
   return JSON.stringify(out);
 };
 
-const runCaptcha = async (ticketB64, captchaCfg, submitToken) => {
+const runCaptcha = async (ticketB64, captchaCfg, submitToken, tokenState, lifecycle) => {
   const hasTurn = Boolean(
     captchaCfg &&
       captchaCfg.turnstile &&
@@ -1383,440 +1590,262 @@ const runCaptcha = async (ticketB64, captchaCfg, submitToken) => {
       captchaCfg.turnstile.sitekey
   );
   if (!hasTurn) {
-    throw new Error("No Challenge");
+    throw new Error("Turnstile Missing");
   }
   const turnToken = await runTurnstile(
     ticketB64,
     captchaCfg.turnstile.sitekey,
     submitToken
       ? async (token) => submitToken(buildCaptchaEnvelope({ turnstile: token }))
-      : undefined
+      : undefined,
+    tokenState,
+    lifecycle,
   );
+  if (typeof turnToken !== "string" || !turnToken) throw new Error("Turnstile Failed");
   return buildCaptchaEnvelope({ turnstile: turnToken });
 };
 
-const runPowFlow = async (
-  apiPrefix,
-  bindingB64,
-  steps,
-  ticketB64,
-  pathHash,
-  hashcashX,
-  segmentLen,
-  pageBytes,
-  mixRounds,
-  esmUrlB64,
-  captchaToken
-) => {
+const runPowFlow = async ({ apiPrefix, bindingB64, ticketB64, pathHash, eq, esmUrl, captchaToken, lifecycle, tokenState }) => {
   log(t("loading_solver"));
-  const esmUrl = decodeB64Url(String(esmUrlB64 || ""));
-  const module = await import(esmUrl);
-  const workerUrl = module.workerUrl;
-  if (!workerUrl) {
-    throw new Error("Worker Missing");
-  }
-  const authBinding = decodeB64Url(String(bindingB64 || ""));
-  if (!authBinding) {
-    throw new Error("Bad Binding");
-  }
-  let powBinding = authBinding;
-  if (captchaToken) {
-    const parsedCaptcha = parseCanonicalCaptchaEnvelope(captchaToken);
-    if (!parsedCaptcha) throw new Error("Bad Binding");
-    const captchaTag = await captchaTagV1(parsedCaptcha.turnstile);
-    powBinding = `${authBinding}|${captchaTag}`;
-  }
-
   let spinTimer;
-  let verifySpinTimer;
-  let rpc = null;
+  let spinIndex = -1;
+  let spinFrame = 0;
+  const spinChars = "|/-\\";
+  let latestProgress = null;
   let workerBlobUrl = "";
-  const disposedRpcs = new Set();
-  const disposeRpc = (entry) => {
-    if (!entry || disposedRpcs.has(entry)) return;
-    disposedRpcs.add(entry);
-    try {
-      entry.dispose();
-    } catch {}
+  let worker = null;
+  let rpc = null;
+  let assetResponse = null;
+  const abortController = typeof AbortController === "function" ? new AbortController() : null;
+  const terminate = () => {
+    const currentRpc = rpc;
+    rpc = null;
+    const currentWorker = worker;
+    worker = null;
+    if (currentRpc) {
+      currentRpc.dispose();
+      return;
+    }
+    if (currentWorker) {
+      try { currentWorker.terminate(); } catch {}
+    }
   };
+  const abortAssets = () => {
+    try { abortController?.abort(); } catch {}
+  };
+  const removeAssetCleanup = lifecycle.addCleanup(abortAssets);
+  const removeWorkerCleanup = lifecycle.addCleanup(terminate);
+  const ensureActive = () => lifecycle.ensureActive();
   try {
-    let spinIndex = -1;
-    let spinFrame = 0;
-    const spinChars = "|/-\\";
-    let attemptCount = 0;
-    let verifyLine = -1;
-    let verifySpinFrame = 0;
-    const verifySpinChars = "|/-\\";
-    let verifyBaseMsg = "";
+    ensureActive();
+    let module;
+    try {
+      module = await lifecycle.race(import(esmUrl));
+    } catch (error) {
+      if (error?.name === "PowLifecycleError") throw error;
+      throw new Error("Solver Missing");
+    }
+    ensureActive();
+    const workerUrl = module && module.workerUrl;
+    const solverUrl = module && module.solverUrl;
+    if (!workerUrl || !solverUrl) throw new Error("Worker Missing");
+    assetResponse = await lifecycle.race(fetch(solverUrl, abortController ? { signal: abortController.signal } : undefined));
+    ensureActive();
+    if (!assetResponse || assetResponse.ok !== true) throw new Error("Solver Missing");
+    const solverWasmBytes = new Uint8Array(await lifecycle.race(assetResponse.arrayBuffer()));
+    assetResponse = null;
+    ensureActive();
+    if (!solverWasmBytes.byteLength) throw new Error("Solver Missing");
+    if (!decodeB64Url(String(bindingB64 || ""))) throw new Error("Bad Binding");
 
-    const ensureHashingLine = () => {
+    let captchaTag = "any";
+    if (captchaToken) {
+      let envelope;
+      try { envelope = JSON.parse(captchaToken); } catch { throw new Error("Bad Binding"); }
+      if (!envelope || typeof envelope !== "object" || Array.isArray(envelope) || typeof envelope.turnstile !== "string") throw new Error("Bad Binding");
+      captchaTag = await lifecycle.race(captchaTagV1(envelope.turnstile));
+      ensureActive();
+    }
+    const seed = await lifecycle.race(deriveEquihashSeed(ticketB64, pathHash, captchaTag));
+    ensureActive();
+    const initialBudgetMs = lifecycle.remainingComputeMs();
+    if (initialBudgetMs <= 0) {
+      lifecycle.stop("compute");
+      ensureActive();
+    }
+
+    const ensureSolvingLine = () => {
       if (spinIndex !== -1) return;
-      spinIndex = log(t("computing_hash_chain"));
+      spinIndex = log(formatEquihashProgress({ elapsedMs: 0, remainingMs: lifecycle.remainingComputeMs(), rows: 1, ewmaSolveMs: 0 }));
       spinTimer = setInterval(() => {
-        let msg = t("computing_hash_chain");
-        if (attemptCount > 0) {
-          msg = t("screening_hash_attempt", { n: attemptCount });
-        }
-        const spinner =
-          '<span class="yellow">' + spinChars[spinFrame++ % spinChars.length] + "</span>";
-        update(spinIndex, msg + " " + spinner);
+        const message = latestProgress ? formatEquihashProgress(latestProgress) : formatEquihashProgress({ elapsedMs: 0, remainingMs: lifecycle.remainingComputeMs(), rows: 1, ewmaSolveMs: 0 });
+        update(spinIndex, `${message} <span class="yellow">${spinChars[spinFrame++ % spinChars.length]}</span>`);
       }, 120);
     };
-
-    let activeWorker = null;
-    const onProgress = (source, progress) => {
-      if (source !== activeWorker) return;
-      if (progress.phase === "chain" || progress.phase === "hashcash") {
-        ensureHashingLine();
-      }
-      if (progress.phase === "hashcash" && typeof progress.attempt === "number") {
-        attemptCount = progress.attempt;
-      }
-    };
-
-    const ensureBlobWorkerUrl = async () => {
-      if (workerBlobUrl) return workerBlobUrl;
-      const response = await fetch(workerUrl);
-      if (!response || typeof response.text !== "function") {
-        throw new Error("Worker Missing");
-      }
-      if (typeof response.ok === "boolean" && !response.ok) {
-        throw new Error("Worker Missing");
-      }
-      const workerCode = await response.text();
-      const blob = new Blob([workerCode], { type: "application/javascript" });
-      workerBlobUrl = URL.createObjectURL(blob);
+    let workerEntryUrl;
+    try { workerEntryUrl = new URL(workerUrl, window.location.href).toString(); } catch { workerEntryUrl = workerUrl; }
+    const workerOrigin = originFromLocation({ href: workerEntryUrl });
+    const pageOrigin = selfOrigin();
+    const makeWorkerBlob = async (sourceUrl) => {
+      assetResponse = await lifecycle.race(fetch(sourceUrl, abortController ? { signal: abortController.signal } : undefined));
+      ensureActive();
+      if (!assetResponse || assetResponse.ok !== true) throw new Error("Worker Missing");
+      const workerCode = await lifecycle.race(assetResponse.text());
+      assetResponse = null;
+      ensureActive();
+      if (!URL.createObjectURL) throw new Error("Worker Missing");
+      workerBlobUrl = URL.createObjectURL(new Blob([workerCode], { type: "application/javascript" }));
       return workerBlobUrl;
     };
-
-    const makeWorkerRpc = async () => {
-      let workerInstance;
-      try {
-        workerInstance = new Worker(workerUrl, { type: "module" });
-      } catch {
-        const blobUrl = await ensureBlobWorkerUrl();
-        workerInstance = new Worker(blobUrl, { type: "module" });
-      }
-      const workerRpc = createWorkerRpc(workerInstance, (progress) =>
-        onProgress(workerInstance, progress)
-      );
-      workerRpc.worker = workerInstance;
-      return workerRpc;
-    };
-
-    const initPayload = {
-      bindingString: powBinding,
-      ticketB64,
-      steps,
-      hashcashX,
-      segmentLen: Math.max(2, Math.min(16, Math.floor(Number(segmentLen) || 0))),
-      pageBytes,
-      mixRounds,
-      yieldEvery: 1024,
-      progressEvery: 1024,
-    };
-
+    if (workerOrigin && pageOrigin && workerOrigin !== pageOrigin) {
+      workerEntryUrl = await makeWorkerBlob(workerEntryUrl);
+    }
+    ensureActive();
     try {
-      rpc = await makeWorkerRpc();
-      await rpc.call("INIT", initPayload);
-    } catch (err) {
-      disposeRpc(rpc);
-      rpc = null;
-      throw err;
+      worker = new Worker(workerEntryUrl, { type: "module" });
+    } catch (error) {
+      if (workerBlobUrl) throw error;
+      workerEntryUrl = await makeWorkerBlob(workerEntryUrl);
+      worker = new Worker(workerEntryUrl, { type: "module" });
     }
-
-    activeWorker = rpc.worker;
-    ensureHashingLine();
-
-    const commitRes = await rpc.call("COMMIT");
-
+    rpc = createWorkerRpc(worker, (progress) => {
+      if (progress.phase === "solve") ensureSolvingLine();
+      if (typeof progress.elapsedMs === "number" && typeof progress.remainingMs === "number" && typeof progress.rows === "number" && typeof progress.ewmaSolveMs === "number") latestProgress = progress;
+    });
+    await lifecycle.race(rpc.call("INIT", {
+      n: eq.n,
+      k: eq.k,
+      solvePolicy: { deadlineMs: initialBudgetMs },
+      solverWasmBytes,
+    }, [solverWasmBytes.buffer]));
+    ensureActive();
+    const solveBudgetMs = lifecycle.remainingComputeMs();
+    if (solveBudgetMs <= 0) {
+      lifecycle.stop("compute");
+      ensureActive();
+    }
+    ensureSolvingLine();
+    let solveRes;
+    try {
+      solveRes = await lifecycle.race(rpc.call("SOLVE", { seed, deadlineMs: solveBudgetMs }));
+    } finally {
+      lifecycle.disarmComputeDeadline();
+    }
+    ensureActive();
+    if (!solveRes || solveRes.status === "timeout" || solveRes.status === "cancelled") {
+      lifecycle.stop("compute");
+      ensureActive();
+    }
+    if (solveRes.status !== "solved" || typeof solveRes.nonceB64 !== "string" || typeof solveRes.proofB64 !== "string") throw new Error("Challenge Failed");
     if (spinTimer) clearInterval(spinTimer);
-    if (spinIndex !== -1) {
-      const doneText =
-        attemptCount > 0
-          ? t("screening_hash_done", { done: doneMark() })
-          : t("computing_hash_chain_done", { done: doneMark() });
-      update(spinIndex, doneText);
-    }
-
-    log(t("submitting_commit"));
-    const commitBody = {
+    if (spinIndex !== -1) update(spinIndex, t("solving_equihash_done", { done: doneMark() }));
+    const verifyBody = {
       ticketB64,
-      rootB64: commitRes.rootB64,
       pathHash,
-      nonce: commitRes.nonce,
+      pow: { nonceB64: solveRes.nonceB64, proofB64: solveRes.proofB64 },
     };
-    if (captchaToken) commitBody.captchaToken = captchaToken;
-    const commitResponse = await postJson(apiPrefix + "/commit", commitBody);
-    const commitToken =
-      commitResponse && typeof commitResponse.commitToken === "string"
-        ? commitResponse.commitToken
-        : "";
-    if (!commitToken) {
-      throw new Error("Commit failed");
-    }
-
-    log(t("requesting_challenge"));
-    let state = await postJson(apiPrefix + "/challenge", { commitToken });
-    if (
-      !state ||
-      !Array.isArray(state.indices) ||
-      typeof state.sid !== "string" ||
-      typeof state.cursor !== "number" ||
-      typeof state.token !== "string"
-    ) {
-      throw new Error("Challenge Failed");
-    }
-
-    let round = 0;
-    while (state && state.done !== true) {
-      round++;
-      if (!Array.isArray(state.indices) || state.indices.length === 0) {
-        throw new Error("Challenge Failed");
-      }
-      verifyBaseMsg = t("verifying_batch", { round, count: state.indices.length });
-      if (verifyLine === -1) {
-        verifyLine = log(verifyBaseMsg);
-        verifySpinTimer = setInterval(() => {
-          const spinner =
-            '<span class="yellow">' + verifySpinChars[verifySpinFrame++ % verifySpinChars.length] + "</span>";
-          update(verifyLine, verifyBaseMsg + " " + spinner);
-        }, 120);
-      }
-      const indices = state.indices;
-      const segs =
-        Array.isArray(state.segs) && state.segs.length === indices.length
-          ? state.segs
-          : null;
-      if (!segs) {
-        throw new Error("Challenge Failed");
-      }
-      const openRes = await rpc.call("OPEN", { indices, segs });
-      const openBody = {
-        commitToken,
-        sid: state.sid,
-        cursor: state.cursor,
-        token: state.token,
-        opens: openRes.opens,
-      };
-      if (captchaToken) openBody.captchaToken = captchaToken;
-      state = await postJson(apiPrefix + "/open", openBody);
-      if (state && state.done === true) break;
-      if (
-        !state ||
-        !Array.isArray(state.indices) ||
-        typeof state.sid !== "string" ||
-        typeof state.cursor !== "number" ||
-        typeof state.token !== "string"
-      ) {
-        throw new Error("Challenge Failed");
-      }
-    }
-    if (verifySpinTimer) clearInterval(verifySpinTimer);
-    if (verifyLine !== -1) update(verifyLine, t("verifying_done", { done: doneMark() }));
+    if (captchaToken) verifyBody.captchaToken = captchaToken;
+    const result = await lifecycle.race(postVerify(`${apiPrefix}/verify`, verifyBody, lifecycle));
+    ensureActive();
     log(t("pow_done", { done: doneMark() }));
-    return state;
+    return result;
   } finally {
+    removeAssetCleanup();
+    removeWorkerCleanup();
     if (spinTimer) clearInterval(spinTimer);
-    if (verifySpinTimer) clearInterval(verifySpinTimer);
-    if (rpc) {
-      disposeRpc(rpc);
-    }
+    terminate();
     if (workerBlobUrl) {
-      try {
-        URL.revokeObjectURL(workerBlobUrl);
-      } catch {}
+      try { URL.revokeObjectURL(workerBlobUrl); } catch {}
     }
   }
-
 };
 
-export default async function runPow(
-  bindingB64,
-  steps,
-  ticketB64,
-  pathHash,
-  hashcashX,
-  segmentLen,
-  reloadUrlB64,
-  apiPrefixB64,
-  esmUrlB64,
-  captchaCfgB64,
-  atomicCfg,
-  pageBytes = 64,
-  mixRounds = 2
-) {
+export default async function runPow(bootstrapB64, bindingB64, reloadUrlB64, esmUrlB64, captchaCfgB64, atomicCfg) {
+  let lifecycle = null;
+  let tokenState = null;
   try {
-    const apiPrefix = normalizeApiPrefix(decodeB64Url(String(apiPrefixB64 || "")));
+    const bootstrap = parseBootstrap(bootstrapB64);
+    if (!bootstrap) throw new Error("Bad Binding");
+    const { ticketB64, pathHash, apiPrefix, eq, expireAt } = bootstrap;
     const target = decodeB64Url(String(reloadUrlB64 || "")) || "/";
-
-    const needPow = Number(steps) > 0;
-    const captchaCfgRaw = decodeB64Url(String(captchaCfgB64 || "")) || "";
+    const esmUrl = decodeB64Url(String(esmUrlB64 || ""));
+    const rawConfig = decodeB64Url(String(captchaCfgB64 || "")) || "";
     let captchaCfg = {};
-    if (captchaCfgRaw) {
-      try {
-        const parsed = JSON.parse(captchaCfgRaw);
-        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-          captchaCfg = parsed;
-        }
-      } catch {}
-    }
-    const needTurn = Boolean(
-      captchaCfg &&
-        captchaCfg.turnstile &&
-        typeof captchaCfg.turnstile.sitekey === "string" &&
-        captchaCfg.turnstile.sitekey
-    );
-    const needCaptcha = needTurn;
+    try {
+      const parsed = rawConfig ? JSON.parse(rawConfig) : {};
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) captchaCfg = parsed;
+    } catch {}
+
     const cfg = parseAtomicCfg(atomicCfg);
-    const atomicEnabled = cfg.atomic;
-    const Q_CAPTCHA = cfg.q.ts;
-    const Q_TICKET = cfg.q.tt;
-    const Q_CONSUME = cfg.q.ct;
-    const H_CAPTCHA = cfg.h.ts;
-    const H_TICKET = cfg.h.tt;
-    const H_CONSUME = cfg.h.ct;
-    const C_NAME = cfg.c;
-
-    if (!needPow && !needCaptcha) throw new Error("No Challenge");
-
+    const needPow = Boolean(esmUrl);
+    const needTurn = Boolean(captchaCfg.turnstile && typeof captchaCfg.turnstile.sitekey === "string" && captchaCfg.turnstile.sitekey);
+    if (!needPow && !needTurn) throw new Error("No Challenge");
     const embedded = window.parent !== window;
-
-    if (!needPow && needCaptcha) {
-      if (atomicEnabled) {
-        const captchaToken = await runCaptcha(ticketB64, captchaCfg);
-        const query = { [Q_CAPTCHA]: captchaToken, [Q_TICKET]: ticketB64 };
-        const headers = { [H_CAPTCHA]: captchaToken, [H_TICKET]: ticketB64 };
-        if (embedded) {
-          postAtomicMessage({ mode: "turn", captchaToken, ticketB64, headers, query });
-          log(t("access_granted_close"));
-          setStatus(true);
-          document.title = t("title_done");
-          return;
-        }
-        const cookieValue = `1|t|${captchaToken}|${ticketB64}`;
-        const cookiePath = cookiePathForTarget(target);
-        if (
-          canUseCookie(C_NAME, cookieValue) &&
-          setAtomicCookie(C_NAME, cookieValue, 5, cookiePath)
-        ) {
-          log(t("access_granted_redirecting", { redirect: yellowMark(t("redirecting")) }));
-          setStatus(true);
-          document.title = t("title_redirecting");
-          window.location.replace(target);
-          return;
-        }
+    tokenState = needTurn ? createTokenState() : null;
+    lifecycle = needPow ? createChallengeLifecycle(expireAt, tokenState) : needTurn ? createChallengeLifecycle(Infinity, tokenState) : null;
+    if (lifecycle) {
+      if (tokenState) tokenState.onExpire = () => lifecycle.stop("expired");
+      lifecycle.ensureActive();
+      if (needPow) lifecycle.armComputeDeadline();
+    }
+    let captchaToken = "";
+    if (needTurn) {
+      const captcha = runCaptcha(ticketB64, captchaCfg, undefined, tokenState, lifecycle);
+      captchaToken = lifecycle ? await lifecycle.race(captcha) : await captcha;
+    }
+    lifecycle?.ensureActive();
+    const state = cfg.atomic && !needPow && needTurn
+      ? { ok: true, mode: "direct" }
+      : needPow
+        ? await runPowFlow({ apiPrefix, bindingB64, ticketB64, pathHash, eq, esmUrl, captchaToken, lifecycle, tokenState })
+        : lifecycle
+          ? await lifecycle.race(postVerify(`${apiPrefix}/verify`, { ticketB64, pathHash, captchaToken }, lifecycle))
+          : await postVerify(`${apiPrefix}/verify`, { ticketB64, pathHash, captchaToken });
+    lifecycle?.ensureActive();
+    if (cfg.atomic) {
+      const consume = state && typeof state.consume === "string" ? state.consume : "";
+      if (embedded) {
+        const query = {};
+        const headers = {};
+        if (captchaToken) { query[cfg.q.ts] = captchaToken; headers[cfg.h.ts] = captchaToken; }
+        if (ticketB64 && !needPow) { query[cfg.q.tt] = ticketB64; headers[cfg.h.tt] = ticketB64; }
+        if (consume) { query[cfg.q.ct] = consume; headers[cfg.h.ct] = consume; }
+        postAtomicMessage({ mode: needPow && needTurn ? "combine" : needPow ? "pow" : "turn", captchaToken, ticketB64, consume, headers, query });
+        log(t("access_granted_close"));
+        setStatus(true);
+        document.title = t("title_done");
+        return;
+      }
+      if (needPow && !consume) throw new Error("Consume Missing");
+      const query = {};
+      if (captchaToken) query[cfg.q.ts] = captchaToken;
+      if (ticketB64 && !needPow) query[cfg.q.tt] = ticketB64;
+      if (consume) query[cfg.q.ct] = consume;
+      const cookieValue = consume ? `1|c|${captchaToken}|${consume}` : `1|t|${captchaToken}|${ticketB64}`;
+      const cookiePath = cookiePathForTarget(target);
+      if (canUseCookie(cfg.c, cookieValue) && setAtomicCookie(cfg.c, cookieValue, 5, cookiePath)) {
         log(t("access_granted_redirecting", { redirect: yellowMark(t("redirecting")) }));
         setStatus(true);
         document.title = t("title_redirecting");
-        window.location.replace(addQuery(target, query));
+        window.location.replace(target);
         return;
       }
-      await runCaptcha(ticketB64, captchaCfg, async (captchaToken) => {
-        await postJson(apiPrefix + "/cap", { ticketB64, pathHash, captchaToken });
-      });
-    } else if (needPow && !needCaptcha) {
-      const state = await runPowFlow(
-        apiPrefix,
-        bindingB64,
-        steps,
-        ticketB64,
-        pathHash,
-        hashcashX,
-        segmentLen,
-        pageBytes,
-        mixRounds,
-        esmUrlB64,
-        ""
-      );
-      if (atomicEnabled) {
-        const consume = state && state.consume;
-        if (consume) {
-          const query = { [Q_CONSUME]: consume };
-          const headers = { [H_CONSUME]: consume };
-          if (embedded) {
-            postAtomicMessage({ mode: "pow", consume, headers, query });
-            log(t("access_granted_close"));
-            setStatus(true);
-            document.title = t("title_done");
-            return;
-          }
-          const cookieValue = `1|c||${consume}`;
-          const cookiePath = cookiePathForTarget(target);
-          if (
-            canUseCookie(C_NAME, cookieValue) &&
-            setAtomicCookie(C_NAME, cookieValue, 5, cookiePath)
-          ) {
-            log(t("access_granted_redirecting", { redirect: yellowMark(t("redirecting")) }));
-            setStatus(true);
-            document.title = t("title_redirecting");
-            window.location.replace(target);
-            return;
-          }
-          log(t("access_granted_redirecting", { redirect: yellowMark(t("redirecting")) }));
-          setStatus(true);
-          document.title = t("title_redirecting");
-          window.location.replace(addQuery(target, query));
-          return;
-        }
-        if (!state || state.done !== true) throw new Error("Consume Missing");
-      }
-    } else {
-      const captchaToken = await runCaptcha(ticketB64, captchaCfg);
-      if (needTurn) {
-        log(t("turnstile_solved_pow"));
-      }
-      const state = await runPowFlow(
-        apiPrefix,
-        bindingB64,
-        steps,
-        ticketB64,
-        pathHash,
-        hashcashX,
-        segmentLen,
-        pageBytes,
-        mixRounds,
-        esmUrlB64,
-        captchaToken
-      );
-      if (atomicEnabled) {
-        const consume = state && state.consume;
-        if (!consume) throw new Error("Consume Missing");
-        const query = { [Q_CAPTCHA]: captchaToken, [Q_CONSUME]: consume };
-        const headers = { [H_CAPTCHA]: captchaToken, [H_CONSUME]: consume };
-        if (embedded) {
-          postAtomicMessage({ mode: "combine", captchaToken, consume, headers, query });
-          log(t("access_granted_close"));
-          setStatus(true);
-          document.title = t("title_done");
-          return;
-        }
-        const cookieValue = `1|c|${captchaToken}|${consume}`;
-        const cookiePath = cookiePathForTarget(target);
-        if (
-          canUseCookie(C_NAME, cookieValue) &&
-          setAtomicCookie(C_NAME, cookieValue, 5, cookiePath)
-        ) {
-          log(t("access_granted_redirecting", { redirect: yellowMark(t("redirecting")) }));
-          setStatus(true);
-          document.title = t("title_redirecting");
-          window.location.replace(target);
-          return;
-        }
-        log(t("access_granted_redirecting", { redirect: yellowMark(t("redirecting")) }));
-        setStatus(true);
-        document.title = t("title_redirecting");
-        window.location.replace(addQuery(target, query));
-        return;
-      }
+      window.location.replace(addQuery(target, query));
+      return;
     }
     log(t("access_granted_redirecting", { redirect: yellowMark(t("redirecting")) }));
     setStatus(true);
     document.title = t("title_redirecting");
     window.location.replace(target);
   } catch (e) {
-    const hintRoute = routeHintAction({ status: e && e.status, hint: e && e.hint });
-    if (hintRoute.action === "reload") {
+    const lifecycleReason = lifecycle?.reason();
+    if (lifecycleReason === "teardown") return;
+    if (lifecycleReason === "expired" || lifecycleReason === "compute") {
+      if (e?.name === "PowLifecycleError" || !isApiError(e)) {
+        e = Object.assign(new Error("verify denied: stale"), { name: "ApiError", status: 403, hint: "stale" });
+      }
+    }
+    if (routeHintAction({ status: e && e.status, hint: e && e.hint }).action === "reload") {
       if (shouldAttemptStaleReload()) {
         log(t("session_expired_reload"));
         setTimeout(() => window.location.reload(), 1000);
@@ -1826,9 +1855,14 @@ export default async function runPow(
       setStatus(false);
       return;
     }
-    const raw = e && e.message ? e.message : String(e);
-    log(t("error_prefix", { message: localizeErrorMessage(raw) }));
+    log(t("error_prefix", { message: localizeErrorMessage(e && e.message ? e.message : String(e)) }));
     setStatus(false);
+  } finally {
+    if (tokenState?.widgetCleanup) {
+      tokenState.widgetCleanup();
+      tokenState.widgetCleanup = null;
+    }
+    lifecycle?.dispose();
   }
 }
 

@@ -1,198 +1,148 @@
-# Configuration Guide
+# Configuration
 
-## Purpose
+Define `CONFIG` in [pow-config.js](../pow-config.js). The first matching rule
+supplies the configuration signed for both core Snippets. An empty rule list
+uses defaults, with both checks disabled. Set the shared `CONFIG_SECRET` in
+all three Snippets as part of [deployment](../README.md#deploy).
 
-Use this guide to define request match rules and per-rule `config` values.
+## Rules
 
-## Minimal Working Config
+This example serves the browser resources and requires Equihash on the rest
+of `example.com`:
 
 ```js
 const CONFIG = [
   {
     host: { eq: "example.com" },
-    path: { glob: "/api/**" },
-    when: {
-      and: [
-        { method: { in: ["GET", "POST"] } },
-        { header: { "x-env": { eq: "prod" } } },
-      ],
-    },
-    config: {
-      POW_TOKEN: "replace-me",
-      powcheck: true,
-      turncheck: true,
-      TURNSTILE_SITEKEY: "replace-me",
-      TURNSTILE_SECRET: "replace-me",
-    },
+    path: { eq: "/glue.js" },
+    config: { powcheck: false, turncheck: false },
+  },
+  {
+    host: { eq: "example.com" },
+    path: { glob: "/esm/**" },
+    config: { powcheck: false, turncheck: false },
+  },
+  {
+    host: { eq: "example.com" },
+    path: { glob: "/**" },
+    config: { POW_TOKEN: "replace-me", powcheck: true },
   },
 ];
 ```
 
-## Rule Shape
+Place resource rules before a protected catch-all, or host resources outside
+the protected matches. The [matcher schema](../lib/rule-engine/schema.js)
+supports matcher objects for `host`, `path`, and `when`. Conditions include
+`method`, `header`, `query`, `cookie`, `ip`, `country`, `asn`, `tls`, `ua`, and
+`path`; combine conditions with `and`, `or`, and `not`. For example,
+`when: { method: { in: ["GET", "POST"] } }` restricts a rule to those methods.
 
-`CONFIG[]` is an ordered array of rule objects.
+## Checks and authorization
 
-- `host` is required on every rule.
-- `path` is optional.
-- `when` is optional.
-- Rule order matters: first match wins.
-- Matcher values must use matcher object syntax (for example `{ eq: "example.com" }`, not raw strings).
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `powcheck` | `false` | Require an Equihash proof. |
+| `turncheck` | `false` | Require a Turnstile token. |
+| `POW_TOKEN` | unset | Secret signing tickets, proof cookies, and consume receipts. |
+| `POW_VERSION` | `5` | Fixed ticket version. |
+| `POW_API_PREFIX` | `/__pow` | Prefix of the `POST /verify` endpoint. |
+| `ATOMIC_CONSUME` | `false` | Apply eligible consumption at the final business request. |
+| `AGGREGATOR_POW_ATOMIC_CONSUME` | `false` | Enable the provider's PoW consume check. |
 
-## Matchers and When Conditions
+| Required checks | Ordinary flow | Effective atomic flow |
+| --- | --- | --- |
+| Equihash | Verify proof, perform configured provider consumption, issue a proof cookie. | With the aggregator consume flag enabled, issue a receipt and consume at the business gate. |
+| Turnstile | Verify token through the provider and issue a proof cookie. | Send ticket and token directly to the business gate for verification. |
+| Both | Bind the proof to the token, verify proof, then consume through the provider and issue a proof cookie. | Verify the bound proof, issue a receipt, then consume at the business gate. |
+| Both disabled | Forward the request. | Forward the request. |
 
-Use matcher objects for `host`, `path`, and `when`.
+Atomic mode is effective when `ATOMIC_CONSUME=true` and either Turnstile is
+required or Equihash uses the aggregator consume flag. Other combinations
+use ordinary authorization. The provider enforces configured single-use
+checks; replayed consumed tokens follow the stale-response flow.
 
-- Typical matcher operators are `eq`, `in`, and `glob`.
-- `when` adds request conditions (for example `method`, `header`, `query`, `cookie`, `ip`).
-- Combine conditions with boolean operators such as `and`, `or`, and `not`.
-- Keep `when` minimal: add only conditions needed for routing and policy separation.
+## Equihash and lifetime
 
-## Configuration Reference
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `POW_EQ_N` | `96` | Even integer from 8 through 256. |
+| `POW_EQ_K` | `5` | Integer from 2 through 8; `n` must be divisible by `k + 1`. |
+| `POW_TICKET_TTL_SEC` | `600` | Challenge lifetime in seconds. |
+| `PROOF_TTL_SEC` | `600` | Proof authorization lifetime in seconds, capped by remaining challenge validity on issuance. |
+| `PROOF_RENEW_ENABLE` | `false` | Renew eligible proof cookies on navigation. |
+| `PROOF_RENEW_MAX` | `2` | Maximum renewal count. |
+| `PROOF_RENEW_WINDOW_SEC` | `90` | Remaining-validity window for renewal. |
+| `PROOF_RENEW_MIN_SEC` | `30` | Minimum interval between renewals. |
 
-Runtime-normalized keys, defaults, and requirement conditions.
+The parameter domain is shared by configuration, Worker, Rust, and verifier.
+A proof contains `2^k` distinct 32-bit indices: `4 * 2^k` bytes, or 128 bytes
+at the default. The nonce is 24 bytes. Resource availability determines
+whether a device can solve its issued parameters within the ticket lifetime.
+See [calibration](calibration.md) for measured default costs.
 
-Maintainer sync-check (optional): before updating the tables below, run this command to print runtime-normalized defaults and confirm docs stay aligned with current behavior.
+Combined verification obtains Turnstile before token-bound hashing. The
+browser accounts for token acquisition, resource loading, and initialization
+when allocating solve time, and reserves time for submission. Expiry releases
+resources and enters bounded automatic refresh. Transport failures replay the
+same body with up to three retries at 500, 1,000, and 2,000 ms. A stale or
+empty-hint 403 refreshes; `cheat` and other error hints display failure. The
+refresh limiter allows two recorded attempts per 15-second storage window,
+with a one-second refresh delay.
 
-```bash
-node -e "import('./pow-config.js').then(m=>{console.log(JSON.stringify(m.__testNormalizeConfig({}), null, 2))})"
-```
+## Request bindings
 
-### Gate toggles and route binding
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `POW_BIND_PATH` | `false` | Bind authorization to the canonical path hash. |
+| `bindPathMode` | `none` | Use the request path, or select `query` or `header` input. |
+| `bindPathQueryName` | `path` | Query parameter supplying the bound path. |
+| `bindPathHeaderName` | empty | Header supplying the bound path. |
+| `stripBindPathHeader` | `false` | Remove the selected binding header before forwarding. |
+| `POW_BIND_IPRANGE` | `true` | Bind to the client IP scope. |
+| `IPV4_PREFIX` | `32` | IPv4 scope prefix length, 0 through 32. |
+| `IPV6_PREFIX` | `128` | IPv6 scope prefix length, 0 through 128. |
+| `POW_BIND_COUNTRY` | `true` | Bind to request country. |
+| `POW_BIND_ASN` | `true` | Bind to request ASN. |
+| `POW_BIND_TLS` | `true` | Bind to the TLS fingerprint derived from Cloudflare metadata. |
 
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `powcheck` | boolean | `false` | Set explicitly on routes that should require PoW. | Enables PoW gate behavior for matched traffic. |
-| `turncheck` | boolean | `false` | Set explicitly on routes that should require Turnstile. | Enables Turnstile verification for matched traffic. |
-| `bindPathMode` | string (`none` \| `query` \| `header`) | `none` | Required when `POW_BIND_PATH=true` and path binding should read from request metadata. | Selects how bound path is sourced for PoW binding checks. |
-| `bindPathQueryName` | string | `path` | Required when `bindPathMode=query`. | Query param name used to read bound path input. |
-| `bindPathHeaderName` | string | `` (empty) | Required when `bindPathMode=header`. | Header name used to read bound path input. |
-| `stripBindPathHeader` | boolean | `false` | Optional; only applies when `bindPathMode=header`. | Removes the bind-path header before forwarding when enabled. |
+With path binding enabled, `query` and `header` modes require the configured
+input. Tickets authenticate the host, selected request bindings, rule ID,
+required-check mask, and Equihash parameters. Combined proofs also bind the
+actual Turnstile token through the challenge seed.
 
-### PoW challenge/verification controls
+## Atomic transport and bypass
 
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `POW_VERSION` | number | `4` | Never; fixed by runtime. | Protocol version identifier used by the PoW flow. |
-| `POW_API_PREFIX` | string | `/__pow` | Never; fixed by runtime. | URL prefix for PoW API endpoints. |
-| `POW_DIFFICULTY_BASE` | number | `8192` | Optional; tune only when adjusting challenge cost. | Base challenge difficulty target. |
-| `POW_DIFFICULTY_COEFF` | number | `1` | Optional; tune only when adjusting challenge cost. | Coefficient applied to PoW difficulty calculations. |
-| `POW_MIN_STEPS` | number | `512` | Optional; tune only when adjusting challenge bounds. | Minimum solve steps accepted for challenges. |
-| `POW_MAX_STEPS` | number | `8192` | Optional; tune only when adjusting challenge bounds. | Maximum solve steps accepted for challenges. |
-| `POW_HASHCASH_X` | number | `1` | Optional; set when adding hashcash requirement. | Expected total attempts for hashcash screening (runtime clamps to `0..4294967296`; `x<=1` disables). |
-| `POW_PAGE_BYTES` | number | `16384` | Optional; tune only when changing solver workload. | Working set size used by PoW computation. |
-| `POW_MIX_ROUNDS` | number | `2` | Optional; tune only when changing solver workload. | Number of PoW mixing rounds. |
-| `POW_SEGMENT_LEN` | number or range string | `2` | Optional; tune only when changing solver workload. | Segment sizing used by PoW challenge generation. |
-| `POW_SAMPLE_RATE` | number | `0.01` | Optional; tune only for sampling strategy changes. | Sampling rate used by PoW generation logic. |
-| `POW_OPEN_BATCH` | number | `4` | Optional; tune only when adjusting open/challenge throughput. | Batch size for PoW open handling. |
+Atomic input selection uses a valid cookie first, then a supplied header set,
+then query parameters. The selected set is carried in signed inner metadata.
 
-### PoW API payload contract
-
-These endpoint payload fields are fixed runtime contract and are not config-driven.
-
-| Endpoint | Contract |
+| Key | Default |
 | --- | --- |
-| `POST /__pow/commit` | Success response body includes `commitToken` (string, non-empty). |
-| `POST /__pow/challenge` | Request JSON must include `commitToken` (string, non-empty) from `/__pow/commit`. |
-| `POST /__pow/open` | Request JSON must include `commitToken` (string, non-empty) from `/__pow/commit`. |
+| `ATOMIC_TURN_QUERY` / `ATOMIC_TICKET_QUERY` / `ATOMIC_CONSUME_QUERY` | `__ts` / `__tt` / `__ct` |
+| `ATOMIC_TURN_HEADER` / `ATOMIC_TICKET_HEADER` / `ATOMIC_CONSUME_HEADER` | `x-turnstile` / `x-ticket` / `x-consume` |
+| `ATOMIC_COOKIE_NAME` | `__Secure-pow_a` |
+| `STRIP_ATOMIC_QUERY` / `STRIP_ATOMIC_HEADERS` | `true` / `true` |
+| `INNER_AUTH_QUERY_NAME` / `INNER_AUTH_QUERY_VALUE` | empty / empty |
+| `INNER_AUTH_HEADER_NAME` / `INNER_AUTH_HEADER_VALUE` | empty / empty |
+| `stripInnerAuthQuery` / `stripInnerAuthHeader` | `true` / `true` |
 
-`/__pow/challenge` and `/__pow/open` read `commitToken` from JSON body only.
+The atomic stripping switches remove their configured transport names before
+forwarding. Internal bypass compares configured query and header credentials;
+when both are configured, both must match. Accepted bypass credentials are
+removed according to their stripping switches.
 
-### Proof lifecycle controls
+## Provider and browser resources
 
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `POW_COMMIT_TTL_SEC` | number | `120` | Optional; set when changing commit lifetime policy. | Lifetime of commit material before expiry. |
-| `POW_MAX_GEN_TIME_SEC` | number | `300` | Optional; set when changing generation timeout policy. | Maximum PoW generation window. |
-| `POW_TICKET_TTL_SEC` | number | `600` | Optional; set when changing ticket lifetime policy. | Lifetime of issued tickets. |
-| `PROOF_TTL_SEC` | number | `600` | Optional; set when changing proof lifetime policy. | Lifetime of accepted proofs. |
-| `PROOF_RENEW_ENABLE` | boolean | `false` | Required only when using proof renewal. | Turns proof renewal on or off. |
-| `PROOF_RENEW_MAX` | number | `2` | Required when `PROOF_RENEW_ENABLE=true`. | Max renewal count allowed per proof. |
-| `PROOF_RENEW_WINDOW_SEC` | number | `90` | Required when `PROOF_RENEW_ENABLE=true`. | Renewal eligibility window. |
-| `PROOF_RENEW_MIN_SEC` | number | `30` | Required when `PROOF_RENEW_ENABLE=true`. | Minimum age before a proof can renew. |
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `TURNSTILE_SITEKEY` | empty | Public Turnstile widget key. |
+| `TURNSTILE_SECRET` | empty | Secret used by the verification provider. |
+| `SITEVERIFY_URLS` | `[]` | Provider endpoint list. |
+| `SITEVERIFY_AUTH_KID` | `v1` | Provider authentication key ID. |
+| `SITEVERIFY_AUTH_SECRET` | empty | Secret signing provider requests. |
+| `POW_GLUE_URL` | `/glue.js` | Browser glue URL. |
+| `POW_ESM_URL` | `/esm/esm.js` | Module URL resolving its sibling Worker and WASM. |
 
-### Atomic transport controls
-
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `ATOMIC_CONSUME` | boolean | `false` | Set to `true` only when consume-token flow is needed. | Enables consume-token handling alongside PoW/Turnstile artifacts. |
-| `ATOMIC_TURN_QUERY` | string | `__ts` | Optional override; change only when customizing query field names. | Query key for Turnstile token transport. |
-| `ATOMIC_TICKET_QUERY` | string | `__tt` | Optional override; change only when customizing query field names. | Query key for PoW ticket transport. |
-| `ATOMIC_CONSUME_QUERY` | string | `__ct` | Optional override; change only when customizing query field names. | Query key for consume token transport. |
-| `ATOMIC_TURN_HEADER` | string | `x-turnstile` | Optional override; change only when customizing header names. | Header name for Turnstile token transport. |
-| `ATOMIC_TICKET_HEADER` | string | `x-ticket` | Optional override; change only when customizing header names. | Header name for PoW ticket transport. |
-| `ATOMIC_CONSUME_HEADER` | string | `x-consume` | Optional override; change only when customizing header names. | Header name for consume token transport. |
-| `ATOMIC_COOKIE_NAME` | string | `__Secure-pow_a` | Optional override; change only when customizing cookie names. | Cookie name for packaged atomic transport values. |
-| `STRIP_ATOMIC_QUERY` | boolean | `true` | Optional; applies when atomic query params are accepted. | Removes atomic query params before forwarding. |
-| `STRIP_ATOMIC_HEADERS` | boolean | `true` | Optional; applies when atomic headers are accepted. | Removes atomic headers before forwarding. |
-
-### Internal bypass controls
-
-Bypass activates only when both name and value are set for the chosen channel.
-
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `INNER_AUTH_QUERY_NAME` | string | `` (empty) | Optional; set only when enabling query-based internal bypass. | Query param name checked for internal bypass. |
-| `INNER_AUTH_QUERY_VALUE` | string | `` (empty) | Required when query-based internal bypass is enabled (`INNER_AUTH_QUERY_NAME` set). | Expected query value for internal bypass. |
-| `INNER_AUTH_HEADER_NAME` | string | `` (empty) | Optional; set only when enabling header-based internal bypass. | Header name checked for internal bypass. |
-| `INNER_AUTH_HEADER_VALUE` | string | `` (empty) | Required when header-based internal bypass is enabled (`INNER_AUTH_HEADER_NAME` set). | Expected header value for internal bypass. |
-| `stripInnerAuthQuery` | boolean | `true` | Optional; applies when bypass query credentials are used. | Strips bypass query credentials before forwarding. |
-| `stripInnerAuthHeader` | boolean | `true` | Optional; applies when bypass header credentials are used. | Strips bypass header credentials before forwarding. |
-
-### Ticket binding controls
-
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `POW_BIND_PATH` | boolean | `false` | Set to `true` when ticket should be path-bound. | Binds PoW tickets to canonical request path. |
-| `POW_BIND_IPRANGE` | boolean | `true` | Optional; disable only if IP range binding is not desired. | Binds tickets to client IP prefix. |
-| `POW_BIND_COUNTRY` | boolean | `true` | Optional; disable only if country binding is not desired. | Binds tickets to client country code. |
-| `POW_BIND_ASN` | boolean | `true` | Optional; disable only if ASN binding is not desired. | Binds tickets to client ASN. |
-| `POW_BIND_TLS` | boolean | `true` | Optional; disable only if TLS fingerprint binding is not desired. | Binds tickets to TLS client fingerprint data. |
-| `IPV4_PREFIX` | number | `32` | Required when `POW_BIND_IPRANGE=true` for IPv4 traffic. | IPv4 CIDR prefix length used for binding. |
-| `IPV6_PREFIX` | number | `128` | Required when `POW_BIND_IPRANGE=true` for IPv6 traffic. | IPv6 CIDR prefix length used for binding. |
-
-### Endpoint/runtime URL controls
-
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `POW_ESM_URL` | string (URL) | `https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-posw@6a34eb1/esm/esm.js` | Optional; set when hosting ESM bundle at a custom location. | URL used to load ESM runtime artifact. |
-| `POW_GLUE_URL` | string (URL) | `https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-posw@6a34eb1/glue.js` | Optional; set when hosting glue script at a custom location. | URL used to load browser glue runtime artifact. |
-
-### Turnstile/siteverify controls
-
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `TURNSTILE_SITEKEY` | string | `` (empty) | Required when `turncheck=true`. | Site key presented to clients for Turnstile challenges. |
-| `SITEVERIFY_URLS` | string[] | `[]` | Required for successful verification flows when `turncheck=true`; also required for aggregator consume verification flows (`AGGREGATOR_POW_ATOMIC_CONSUME=true`). | Ordered provider endpoint list for server-side verification requests. |
-| `SITEVERIFY_AUTH_KID` | string | `v1` | Required when `SITEVERIFY_URLS` is non-empty and auth-kid routing is used. | Key identifier attached to siteverify auth material. |
-| `AGGREGATOR_POW_ATOMIC_CONSUME` | boolean | `false` | Set to `true` only when aggregator-backed PoW+atomic consume mode is used. | Enables aggregator-specific consume behavior in combined flows. |
-
-### Secrets
-
-| Key | Type | Default | Required when | What it controls |
-| --- | --- | --- | --- | --- |
-| `POW_TOKEN` | string | `unset (normalizes to undefined if omitted)` | Required for protected routes (`powcheck=true` and/or `turncheck=true`), and for consume flows. | Shared signing/verification secret across PoW pipeline components. |
-| `TURNSTILE_SECRET` | string | `` (empty) | Required whenever `turncheck=true`. | Secret used to verify Turnstile tokens. |
-| `SITEVERIFY_AUTH_SECRET` | string | `` (empty) | Required when `SITEVERIFY_URLS` is non-empty and provider auth signing is enabled. | Shared auth secret for siteverify provider requests. |
-
-## 8-Path Matrix (High Level)
-
-High-level mode combinations across PoW, Atomic, and Turnstile.
-
-| P | A | T | Typical use | Operator notes |
-| --- | --- | --- | --- | --- |
-| Off | Off | Off | Public endpoints with no challenge gate. | Use only where abuse protection is not needed. |
-| On | Off | Off | PoW-only protection for automated abuse pressure. | Set `powcheck=true` and provide shared `POW_TOKEN`. |
-| Off | On | Off | Unprotected pass-through with atomic fields only. | Atomic alone does not gate traffic; add PoW and/or Turnstile for protection. |
-| Off | Off | On | Turnstile-only protection for human verification flows. | Set `turncheck=true` and provide Turnstile keys. |
-| On | On | Off | PoW with atomic transport handling. | Keep PoW secrets and atomic field names consistent. |
-| On | Off | On | PoW + Turnstile checks without atomic transport. | Validate both challenge paths in staging before rollout. |
-| Off | On | On | Turnstile flow with atomic token delivery. | Verify key validity and stripping behavior. |
-| On | On | On | Full combined mode for high-risk endpoints. | Roll out gradually and monitor failures. |
-
-## Common Misconfigurations
-
-- Missing `POW_TOKEN` with `powcheck=true` and/or `turncheck=true`: set one shared non-placeholder token across the snippet path.
-- `turncheck=true` without Turnstile keys: set both `TURNSTILE_SITEKEY` and `TURNSTILE_SECRET` before enabling checks.
-- Inconsistent secrets across snippet chain: keep `POW_TOKEN` (and provider auth secrets, when used) identical across services.
-- Invalid matcher shapes: matcher fields must use matcher objects (for example `{ eq: "example.com" }`), not raw strings.
-- Incorrect rule order with first-match-wins: place specific rules before broad catch-all rules.
+Turnstile and aggregator consumption use the authenticated provider configured
+by `SITEVERIFY_URLS` and its authentication keys. The provider implementation
+and deployment settings are in [siteverify_provider](../siteverify_provider).
+Resource layout and MIME/CORS requirements are in [deployment](../README.md#deploy).

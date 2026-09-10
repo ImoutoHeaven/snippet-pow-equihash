@@ -4,21 +4,14 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REQUIRED_RUNTIME_MODULES = [
-  "lib/pow/api-engine.js",
   "lib/pow/inner-auth.js",
   "lib/pow/transit-auth.js",
   "lib/pow/business-gate.js",
   "lib/pow/siteverify-client.js",
-  "lib/mhg/constants.js",
-  "lib/mhg/graph.js",
-  "lib/mhg/hash.js",
-  "lib/mhg/merkle.js",
-  "lib/mhg/mix-aes.js",
-  "lib/mhg/verify.js",
+  "lib/pow/api-engine.js",
 ];
 
 const OPTIONAL_RUNTIME_MODULES = [
-  "lib/pow/api-core1-front.js",
   "lib/pow/api-protocol-shared.js",
   "lib/pow/auth-primitives.js",
 ];
@@ -44,7 +37,7 @@ const collectJsFiles = async (rootDir, relativeDir, out) => {
       await collectJsFiles(rootDir, nextRelative, out);
       continue;
     }
-    if (entry.isFile() && entry.name.endsWith(".js")) out.push(nextRelative);
+    if (entry.isFile() && entry.name.endsWith(".js")) out.push(nextRelative.replaceAll("\\", "/"));
   }
 };
 
@@ -72,7 +65,7 @@ export const createPowRuntimeFixture = async ({
 } = {}) => {
   const runtimeEntries = [];
   await collectJsFiles(repoRoot, "lib/pow", runtimeEntries);
-  await collectJsFiles(repoRoot, "lib/mhg", runtimeEntries);
+  await collectJsFiles(repoRoot, "lib/equihash", runtimeEntries);
 
   for (const requiredPath of REQUIRED_RUNTIME_MODULES) {
     if (!runtimeEntries.includes(requiredPath)) {

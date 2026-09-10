@@ -1,0 +1,22 @@
+name: Equihash release gates
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    container: rust:1.96.0-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: npm
+      - run: rustup target add wasm32-unknown-unknown
+      - run: npm ci
+      - run: npm run check:release

@@ -18,14 +18,15 @@ test("auth modules import shared auth primitives", async () => {
   assert.match(transitAuthSource, /from "\.\/auth-primitives\.js";/u);
 });
 
-test("api modules import shared protocol helpers", async () => {
-  const [apiEngineSource, apiCore1FrontSource] = await Promise.all([
+test("verify API imports shared protocol helpers", async () => {
+  const [apiEngineSource, sharedSource] = await Promise.all([
     readPowSource("api-engine.js"),
-    readPowSource("api-core1-front.js"),
+    readPowSource("api-protocol-shared.js"),
   ]);
 
   assert.match(apiEngineSource, /from "\.\/api-protocol-shared\.js";/u);
-  assert.match(apiCore1FrontSource, /from "\.\/api-protocol-shared\.js";/u);
+  assert.match(sharedSource, /verifyRequiredCaptchaForTicket/u);
+  assert.doesNotMatch(apiEngineSource, /lib\/mhg|hashcash|sample/u);
 });
 
 test("inner and transit auth do not define prohibited auth helper implementations", async () => {
