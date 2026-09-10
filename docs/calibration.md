@@ -74,7 +74,8 @@ server verification interval.
 - [0.2-CPU record](calibration/calibration-cpus-0.2.json)
 
 These records contain the proofs, seeds, nonces, timing distributions, resource
-observations, and a fixed `12/2` WASM replay check. Their solver SHA-256 is
+observations, and a fixed `12/2` proof-verification fixture. The checked-in
+solver SHA-256 is
 `ec6e3f35fa7627a276001e28bf37e178c745c8808c8081677553d9a73f31bab7`.
 
 Run from the repository root with a reachable Docker daemon. The source mount
@@ -82,9 +83,10 @@ is read-only; the output directory receives the measurement file:
 
 ```bash
 docker info
+repo_path="$(pwd -W 2>/dev/null || pwd)"
 MSYS_NO_PATHCONV=1 docker run --rm --cpus=1 \
-  --mount type=bind,src="$PWD",dst=/workspace,readonly \
-  --mount type=bind,src="$PWD/docs/calibration",dst=/output \
+  --mount type=bind,src="$repo_path",dst=/workspace,readonly \
+  --mount type=bind,src="$repo_path/docs/calibration",dst=/output \
   --workdir /workspace mcr.microsoft.com/playwright:v1.49.1-noble \
   sh -c 'npm install --silent --prefix /runtime --no-save playwright@1.49.1 && \
     CALIBRATION_PLAYWRIGHT=/runtime/node_modules/playwright/index.js \
@@ -95,5 +97,5 @@ MSYS_NO_PATHCONV=1 docker run --rm --cpus=1 \
 For the proxy, set Docker's `--cpus` to `0.2`, the script's `--profile` to
 `docker-cpus-0.2`, and its output filename to `calibration-cpus-0.2.json`.
 `--only` selects named fixtures, including ten additional `96/5` regressions.
-Required solve, replay, or verifier failures write a JSON record and return
-a nonzero exit status.
+Required solve, fixed-fixture verification, or verifier failures write a JSON
+record and return a nonzero exit status.

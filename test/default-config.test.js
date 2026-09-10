@@ -5,6 +5,9 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { __testNormalizeConfig } from "../pow-config.js";
 
+const CDN_ESM_URL = "https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/esm/esm.js";
+const CDN_GLUE_URL = "https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/glue.js";
+
 test("normalizeConfig exposes the preserved gate, binding, renewal, and transport surface", () => {
   const config = __testNormalizeConfig({});
   assert.equal(config.powcheck, false);
@@ -13,7 +16,8 @@ test("normalizeConfig exposes the preserved gate, binding, renewal, and transpor
   assert.equal(config.POW_API_PREFIX, "/__pow");
   assert.equal(config.POW_EQ_N, 96);
   assert.equal(config.POW_EQ_K, 5);
-  assert.equal(config.POW_ESM_URL, "/esm/esm.js");
+  assert.equal(config.POW_ESM_URL, CDN_ESM_URL);
+  assert.equal(config.POW_GLUE_URL, CDN_GLUE_URL);
   assert.equal(config.POW_TICKET_TTL_SEC, 600);
   assert.equal(config.PROOF_TTL_SEC, 600);
   assert.equal(config.PROOF_RENEW_ENABLE, false);
@@ -25,6 +29,22 @@ test("normalizeConfig exposes the preserved gate, binding, renewal, and transpor
   assert.equal(config.ATOMIC_TICKET_HEADER, "x-ticket");
   assert.equal(config.ATOMIC_CONSUME_HEADER, "x-consume");
   assert.equal(config.ATOMIC_COOKIE_NAME, "__Secure-pow_a");
+});
+
+test("normalizeConfig preserves custom browser resource URLs and sibling release layout", async () => {
+  const custom = __testNormalizeConfig({
+    POW_GLUE_URL: "https://assets.example/release/glue.js",
+    POW_ESM_URL: "https://assets.example/release/esm/esm.js",
+  });
+  assert.equal(custom.POW_GLUE_URL, "https://assets.example/release/glue.js");
+  assert.equal(custom.POW_ESM_URL, "https://assets.example/release/esm/esm.js");
+
+  const root = fileURLToPath(new URL("..", import.meta.url));
+  const manifest = await readFile(join(root, "esm", "esm.js"), "utf8");
+  assert.match(manifest, /new URL\("equihash-worker\.js", import\.meta\.url\)/u);
+  assert.match(manifest, /new URL\("solver\.wasm", import\.meta\.url\)/u);
+  assert.equal(new URL("equihash-worker.js", CDN_ESM_URL).href, "https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/esm/equihash-worker.js");
+  assert.equal(new URL("solver.wasm", CDN_ESM_URL).href, "https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/esm/solver.wasm");
 });
 
 test("normalizeConfig removes retired kernel and exchange settings", () => {

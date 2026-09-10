@@ -7,8 +7,8 @@ all three Snippets as part of [deployment](../README.md#deploy).
 
 ## Rules
 
-This example serves the browser resources and requires Equihash on the rest
-of `example.com`:
+This self-hosting example serves the browser resources from `example.com` and
+requires Equihash on the rest of the site:
 
 ```js
 const CONFIG = [
@@ -25,7 +25,12 @@ const CONFIG = [
   {
     host: { eq: "example.com" },
     path: { glob: "/**" },
-    config: { POW_TOKEN: "replace-me", powcheck: true },
+    config: {
+      POW_TOKEN: "replace-me",
+      POW_GLUE_URL: "/glue.js",
+      POW_ESM_URL: "/esm/esm.js",
+      powcheck: true,
+    },
   },
 ];
 ```
@@ -139,10 +144,13 @@ removed according to their stripping switches.
 | `SITEVERIFY_URLS` | `[]` | Provider endpoint list. |
 | `SITEVERIFY_AUTH_KID` | `v1` | Provider authentication key ID. |
 | `SITEVERIFY_AUTH_SECRET` | empty | Secret signing provider requests. |
-| `POW_GLUE_URL` | `/glue.js` | Browser glue URL. |
-| `POW_ESM_URL` | `/esm/esm.js` | Module URL resolving its sibling Worker and WASM. |
+| `POW_GLUE_URL` | `https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/glue.js` | Browser glue URL. |
+| `POW_ESM_URL` | `https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/esm/esm.js` | Module URL resolving its sibling Worker and WASM. |
 
 Turnstile and aggregator consumption use the authenticated provider configured
 by `SITEVERIFY_URLS` and its authentication keys. The provider implementation
 and deployment settings are in [siteverify_provider](../siteverify_provider).
-Resource layout and MIME/CORS requirements are in [deployment](../README.md#deploy).
+The default browser resource URLs point to this repository's `main` branch on
+jsDelivr. The self-hosting example sets both URLs to matching published release
+paths so the glue, ESM manifest, Worker, and WASM stay together. Resource
+layout and MIME/CORS requirements are in [deployment](../README.md#deploy).

@@ -3,6 +3,10 @@ dist/
 .worktree/
 .worktrees/
 .scratch/
+/scratch/
+/spec/
+/specs/
+/spec.md
 equihash-solver/target/
 docs/plans/
 docs/plan/

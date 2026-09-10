@@ -23,8 +23,8 @@ building its artifacts.
 
 | Configuration | `pow_config_snippet.js` | `pow_core1_snippet.js` | `pow_core2_snippet.js` |
 | --- | ---: | ---: | ---: |
-| Empty rule list | 25,884 B | 23,670 B | 23,901 B |
-| Release-check rules | 27,188 B | 23,670 B | 23,901 B |
+| Empty rule list | 26,016 B | 23,670 B | 23,901 B |
+| Release-check rules | 27,320 B | 23,670 B | 23,901 B |
 
 The [release-check rules](scripts/release-check.mjs) include resource bypasses,
 combined verification, atomic consumption, provider authentication, path
@@ -50,10 +50,12 @@ entry point with the locked Rust and Node versions.
    [configuration guide](docs/configuration.md).
 2. Build and deploy the Snippets in order:
    `pow-config -> pow-core-1 -> pow-core-2`.
-3. Host `glue.js`, `esm/esm.js`, `esm/equihash-worker.js`, and
-   `esm/solver.wasm` from the same release. Serve JavaScript with a JavaScript
-   MIME type and WASM with `application/wasm`. A separate asset hostname
-   needs CORS access for the protected origin.
+3. The default browser resource URLs point to this repository's `main` branch
+   on jsDelivr. For self-hosting, set `POW_GLUE_URL` and `POW_ESM_URL` to
+   matching published release URLs, then host `glue.js`, `esm/esm.js`,
+   `esm/equihash-worker.js`, and `esm/solver.wasm` together. Serve JavaScript
+   with a JavaScript MIME type and WASM with `application/wasm`. A separate
+   self-hosted asset hostname needs CORS access for the protected origin.
 
 `pow-config` selects rules and signs request metadata. `pow-core-1` issues
 challenges and gates business requests. `pow-core-2` handles
