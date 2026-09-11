@@ -871,7 +871,7 @@ const initUi = () => {
     "#t[data-state='error']{color:#ff8b8b;text-shadow:0 0 10px rgba(255,139,139,0.28),0 0 24px rgba(255,139,139,0.14);}",
     "#log{font-family:var(--mono);font-size:13px;color:var(--sub);text-align:left;height:120px;overflow:hidden;position:relative;mask-image:linear-gradient(to bottom,transparent,black 30%);-webkit-mask-image:linear-gradient(to bottom,transparent,black 30%);display:flex;flex-direction:column;justify-content:flex-end;background:transparent;border:none;border-radius:0;padding:0;}",
     "#ts{margin-top:16px;display:flex;justify-content:center;max-height:0;opacity:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease,margin-top 0.4s cubic-bezier(0.16,1,0.3,1);position:relative;z-index:2;}#ts.show{max-height:400px;opacity:1;margin-top:16px;}#ts.hide{max-height:0;opacity:0;margin-top:0;}",
-    ".log-line{padding:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 0 auto;}.log-line .yellow{color:var(--yellow);}.log-line .green{color:var(--green);}",
+    ".log-line{padding:3px 0;white-space:normal;overflow-wrap:anywhere;flex:0 0 auto;}.log-line .yellow{color:var(--yellow);}.log-line .green{color:var(--green);}",
     "@keyframes fade-in{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}"
   ].join("");
   (document.head || document.documentElement).appendChild(style);
@@ -1676,9 +1676,15 @@ const runPowFlow = async ({ apiPrefix, bindingB64, ticketB64, pathHash, eq, esmU
 
     const ensureSolvingLine = () => {
       if (spinIndex !== -1) return;
-      spinIndex = log(formatEquihashProgress({ elapsedMs: 0, remainingMs: lifecycle.remainingComputeMs(), rows: 1, ewmaSolveMs: 0 }));
+      const startedAtMs = monotonicNow();
+      const progressText = () => formatEquihashProgress({
+        ...latestProgress,
+        elapsedMs: monotonicNow() - startedAtMs,
+        remainingMs: lifecycle.remainingComputeMs(),
+      });
+      spinIndex = log(progressText());
       spinTimer = setInterval(() => {
-        const message = latestProgress ? formatEquihashProgress(latestProgress) : formatEquihashProgress({ elapsedMs: 0, remainingMs: lifecycle.remainingComputeMs(), rows: 1, ewmaSolveMs: 0 });
+        const message = progressText();
         update(spinIndex, `${message} <span class="yellow">${spinChars[spinFrame++ % spinChars.length]}</span>`);
       }, 120);
     };

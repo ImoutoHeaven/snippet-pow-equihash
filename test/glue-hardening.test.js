@@ -730,6 +730,15 @@ test("glue keeps bounded hint routing and no-worker Turnstile entry", { concurre
       const run = glue.default(powBootstrap(clock.wallMs, 5), b64("binding"), b64("https://example.com/protected"), powEsm(), b64("{}"), "0");
       await flushUntil(() => solveStarted);
       assert.equal(solveStarted, true);
+      const progressTimer = timers.intervals.find((timer) => timer.delay === 120);
+      assert.ok(progressTimer);
+      clock.monoMs = 2000;
+      progressTimer.fn();
+      assert.match(dom.elements.get("log").innerHTML, /1\.0s elapsed, 2\.5s left/u);
+      worker.emit({ type: "PROGRESS", phase: "solve", elapsedMs: 1000, remainingMs: 2500, rows: 8, ewmaSolveMs: 1000 });
+      clock.monoMs = 3000;
+      progressTimer.fn();
+      assert.match(dom.elements.get("log").innerHTML, /2\.0s elapsed, 1\.5s left/u);
       clock.monoMs = 4501;
       assert.ok(clock.monoMs < 6000);
       for (const timer of timers.intervals) if (!timer.cleared) timer.fn();
