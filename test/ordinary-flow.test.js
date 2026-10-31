@@ -109,7 +109,7 @@ const solveArtifact = async (seed, n, k) => {
   }
 };
 
-const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggregator = false, atomic = false, direct = false, apiPrefix = "/__pow", pathRule = null, providerResult = () => ({ ok: true, reason: "ok", checks: {}, providers: {} }) }) => {
+const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggregator = false, atomic = false, direct = false, directFields = {}, apiPrefix = "/__pow", pathRule = null, providerResult = () => ({ ok: true, reason: "ok", checks: {}, providers: {} }) }) => {
   const config = await loadConfig({
     POW_TOKEN: "pow-secret",
     POW_API_PREFIX: apiPrefix,
@@ -137,12 +137,13 @@ const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggrega
   const cores = await loadCores();
   const originalFetch = globalThis.fetch;
   const trace = { provider: 0, origin: 0 };
+  let ticketMac;
   globalThis.fetch = async (input, init) => {
     const request = input instanceof Request ? input : new Request(input, init);
     if (request.url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
       trace.provider += 1;
       const result = await providerResult(request);
-      return Response.json({ success: result.ok });
+      return Response.json({ success: result.ok, cdata: ticketMac, hostname: "example.com", ...directFields });
     }
     if (request.url === "https://sv.example/siteverify") {
       trace.provider += 1;
@@ -157,6 +158,11 @@ const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggrega
   const challenge = await config(new Request("https://example.com/protected", {
     headers: { Accept: "text/html", "CF-Connecting-IP": "203.0.113.9" },
   }));
+  if (direct) {
+    const args = parseTemplate(await challenge.clone().text());
+    const bootstrap = JSON.parse(decodeB64(args.bootstrapB64));
+    ticketMac = parseV5Ticket(bootstrap.ticketB64).mac;
+  }
   return { config, trace, challenge, restore, apiPrefix };
 };
 
@@ -244,6 +250,67 @@ test(`combined real proof issues a proof cookie (direct Turnstile: ${direct})`, 
     harness.restore();
   }
 });
+}
+
+for (const powcheck of [false, true]) {
+for (const atomic of [false, true]) {
+test(`official fallback binds the issued ticket and request hostname (pow: ${powcheck}, atomic: ${atomic})`, async () => {
+  const directFields = {};
+  const harness = await makeHarness({ turncheck: true, powcheck, atomic, direct: true, directFields });
+  try {
+    const token = "turnstile-bound-token-1234567890";
+    const args = parseTemplate(await harness.challenge.clone().text());
+    const bootstrap = JSON.parse(decodeB64(args.bootstrapB64));
+    const { body } = powcheck
+      ? await issueProof({ harness, token })
+      : { body: { ticketB64: bootstrap.ticketB64, pathHash: bootstrap.pathHash, captchaToken: JSON.stringify({ turnstile: token }) } };
+    const verifyRequest = () => new Request("https://example.com/__pow/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json", "CF-Connecting-IP": "203.0.113.9" },
+      body: JSON.stringify(body),
+    });
+    let receipt;
+    if (atomic && powcheck) {
+      const verified = await harness.config(verifyRequest());
+      assert.equal(verified.status, 200);
+      receipt = (await verified.json()).consume;
+      assert.match(receipt, /^v2\./u);
+      assert.equal(harness.trace.provider, 0);
+    }
+    const request = atomic ? () => new Request("https://example.com/protected", {
+      headers: {
+        Accept: "application/json",
+        "CF-Connecting-IP": "203.0.113.9",
+        "x-turnstile": body.captchaToken,
+        ...(powcheck ? { "x-consume": receipt } : { "x-ticket": body.ticketB64 }),
+      },
+    }) : verifyRequest;
+
+    for (const [field, wrong] of [["cdata", "another-ticket"], ["hostname", "other.example.com"]]) {
+      directFields[field] = wrong;
+      const rejected = await harness.config(request());
+      assert.equal(rejected.status, 403, `${field} mismatch must fail at the provider boundary`);
+      assert.equal(rejected.headers.get("set-cookie"), null);
+      assert.equal(harness.trace.origin, 0);
+      delete directFields[field];
+    }
+    assert.equal(harness.trace.provider, 2);
+    const accepted = await harness.config(request());
+    assert.equal(accepted.status, 200);
+    assert.equal(harness.trace.provider, 3);
+    if (atomic) {
+      assert.equal(harness.trace.origin, 1);
+      assert.equal(accepted.headers.get("set-cookie"), null);
+    } else {
+      assert.equal(harness.trace.origin, 0);
+      assert.equal((await accepted.json()).mode, "proof");
+      assert.match(parseSetCookie(accepted), /^__Host-proof=/u);
+    }
+  } finally {
+    harness.restore();
+  }
+});
+}
 }
 
 test("ordinary PoW invokes the configured ledger only after proof validation", async () => {

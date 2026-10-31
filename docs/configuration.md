@@ -154,6 +154,9 @@ With a non-empty `SITEVERIFY_URLS`, Turnstile and aggregator consumption use
 the authenticated provider and its authentication keys. An empty list with
 `turncheck=true` verifies directly at Cloudflare's official Turnstile Siteverify
 endpoint, using `TURNSTILE_SECRET`; aggregator authentication is not needed.
+The official response must have `success=true`, `cdata` equal to the verified
+ticket MAC, and `hostname` matching the protected request hostname
+(case-insensitive, with no wildcard or suffix matching).
 This sends `secret`, `response`, and optional `remoteip`, not the aggregator
 payload. Token consumption occurs at proof-cookie issuance in ordinary mode
 and at the business gate in atomic mode. Ordinary proof cookies remain reusable.
