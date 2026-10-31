@@ -150,8 +150,17 @@ removed according to their stripping switches.
 | `POW_GLUE_URL` | `https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/glue.js` | Browser glue URL. |
 | `POW_ESM_URL` | `https://cdn.jsdelivr.net/gh/ImoutoHeaven/snippet-pow-equihash@main/esm/esm.js` | Module URL resolving its sibling Worker and WASM. |
 
-Turnstile and aggregator consumption use the authenticated provider configured
-by `SITEVERIFY_URLS` and its authentication keys. The provider implementation
+With a non-empty `SITEVERIFY_URLS`, Turnstile and aggregator consumption use
+the authenticated provider and its authentication keys. An empty list with
+`turncheck=true` verifies directly at Cloudflare's official Turnstile Siteverify
+endpoint, using `TURNSTILE_SECRET`; aggregator authentication is not needed.
+This sends `secret`, `response`, and optional `remoteip`, not the aggregator
+payload. Token consumption occurs at proof-cookie issuance in ordinary mode
+and at the business gate in atomic mode. Ordinary proof cookies remain reusable.
+In this fallback, single-use relies on the proof-bound Turnstile token, even
+when `AGGREGATOR_POW_ATOMIC_CONSUME=true`; there is no separate PoW ledger.
+PoW-only aggregator consumption still requires a provider URL.
+The provider implementation
 and deployment settings are in [siteverify_provider](../siteverify_provider).
 The default browser resource URLs point to this repository's `main` branch on
 jsDelivr. The self-hosting example sets both URLs to matching published release

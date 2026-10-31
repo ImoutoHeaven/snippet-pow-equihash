@@ -109,7 +109,7 @@ const solveArtifact = async (seed, n, k) => {
   }
 };
 
-const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggregator = false, atomic = false, apiPrefix = "/__pow", pathRule = null, providerResult = () => ({ ok: true, reason: "ok", checks: {}, providers: {} }) }) => {
+const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggregator = false, atomic = false, direct = false, apiPrefix = "/__pow", pathRule = null, providerResult = () => ({ ok: true, reason: "ok", checks: {}, providers: {} }) }) => {
   const config = await loadConfig({
     POW_TOKEN: "pow-secret",
     POW_API_PREFIX: apiPrefix,
@@ -128,7 +128,7 @@ const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggrega
     POW_BIND_TLS: false,
     TURNSTILE_SITEKEY: turncheck ? "sitekey" : "",
     TURNSTILE_SECRET: turncheck ? "turn-secret" : "",
-    SITEVERIFY_URLS: turncheck || aggregator ? ["https://sv.example/siteverify"] : [],
+    SITEVERIFY_URLS: !direct && (turncheck || aggregator) ? ["https://sv.example/siteverify"] : [],
     SITEVERIFY_AUTH_KID: "v1",
     SITEVERIFY_AUTH_SECRET: turncheck || aggregator ? "provider-secret" : "",
     AGGREGATOR_POW_ATOMIC_CONSUME: aggregator,
@@ -139,6 +139,11 @@ const makeHarness = async ({ turncheck, powcheck = true, proofTtl = 600, aggrega
   const trace = { provider: 0, origin: 0 };
   globalThis.fetch = async (input, init) => {
     const request = input instanceof Request ? input : new Request(input, init);
+    if (request.url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+      trace.provider += 1;
+      const result = await providerResult(request);
+      return Response.json({ success: result.ok });
+    }
     if (request.url === "https://sv.example/siteverify") {
       trace.provider += 1;
       return new Response(JSON.stringify(await providerResult(request)), { status: 200 });
@@ -221,8 +226,9 @@ test("Turnstile-only uses /verify without constructing a PoW proof", async () =>
   }
 });
 
-test("combined real proof validates before the configured provider and issues a proof cookie", async () => {
-  const harness = await makeHarness({ turncheck: true });
+for (const direct of [false, true]) {
+test(`combined real proof issues a proof cookie (direct Turnstile: ${direct})`, async () => {
+  const harness = await makeHarness({ turncheck: true, direct });
   try {
     const { body } = await issueProof({ harness, token: "turnstile-token-1234567890" });
     const verify = await harness.config(new Request("https://example.com/__pow/verify", {
@@ -238,6 +244,7 @@ test("combined real proof validates before the configured provider and issues a 
     harness.restore();
   }
 });
+}
 
 test("ordinary PoW invokes the configured ledger only after proof validation", async () => {
   const harness = await makeHarness({ turncheck: false, aggregator: true });
@@ -273,10 +280,12 @@ test("raw atomic setting stays ordinary when its effective gate is disabled", as
   }
 });
 
-test("combined atomic receipt defers provider consumption to the business gate", async () => {
+for (const direct of [false, true]) {
+test(`combined atomic receipt defers consumption to the business gate (direct Turnstile: ${direct})`, async () => {
   let consumed = false;
   const harness = await makeHarness({
     turncheck: true,
+    direct,
     atomic: true,
     providerResult: async () => {
       if (consumed) return { ok: false, reason: "duplicate", checks: {}, providers: {} };
@@ -331,6 +340,7 @@ test("combined atomic receipt defers provider consumption to the business gate",
     harness.restore();
   }
 });
+}
 
 test("PoW-only atomic receipt defers the configured ledger consume to the business gate", async () => {
   let consumed = false;
